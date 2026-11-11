@@ -36,6 +36,29 @@ export const VideoManagerModal: React.FC<VideoManagerModalProps> = ({
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [isScanning, setIsScanning] = useState(false);
 
+  const handleExportVideoUrls = () => {
+    try {
+      const overrides = storageService.getVideoOverrides();
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        sourcePdf: '/hahaha_physical_play.pdf',
+        videoUrls: overrides
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'hahaha-video-urls.json';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      setStatusMessage({ type: 'success', text: `현재 저장된 영상 주소 ${Object.keys(overrides).length}개를 JSON 파일로 내보냈습니다.` });
+    } catch (error: any) {
+      setStatusMessage({ type: 'error', text: '영상 주소 내보내기에 실패했습니다: ' + (error?.message || '알 수 없는 오류') });
+    }
+  };
+
   if (!isOpen) return null;
 
   const filteredList = activities.filter((act) => {
@@ -78,10 +101,11 @@ export const VideoManagerModal: React.FC<VideoManagerModalProps> = ({
     }
   };
 
-  // Scan current uploaded or default PDF for QR codes across all 90 pages
+  // 배포된 원본 PDF를 기준으로 QR URL을 추출합니다.
+  // 브라우저 IndexedDB에 남아 있는 과거 PDF를 잘못 스캔하지 않도록 합니다.
   const handleAutoScanPdfForQrCodes = async () => {
     if (!window.pdfjsLib) {
-      alert('PDF 라이브러리가 로드되지 않았습니다.');
+      alert('PDF 라이브러리가 로드되지 않았습니다. 페이지를 새로고침한 뒤 다시 시도해 주세요.');
       return;
     }
 
@@ -89,40 +113,42 @@ export const VideoManagerModal: React.FC<VideoManagerModalProps> = ({
       setIsScanning(true);
       setStatusMessage(null);
 
-      const blob = await storageService.getPdfBlob();
-      const pdfSource = blob ? URL.createObjectURL(blob) : '/hahaha_physical_play.pdf';
-
-      const loadingTask = window.pdfjsLib.getDocument(pdfSource);
+      const loadingTask = window.pdfjsLib.getDocument('/hahaha_physical_play.pdf');
       const doc = await loadingTask.promise;
-
-      let foundCount = 0;
       const newOverrides: Record<number, string> = {};
+      let scannedCount = 0;
 
       for (const act of activities) {
-        if (act.pdf_page <= doc.numPages) {
-          const qrUrl = await qrVideoService.scanPageForQrCode(doc, act.pdf_page);
-          if (qrUrl && qrUrl.startsWith('http')) {
-            newOverrides[act.id] = qrUrl;
-            foundCount++;
-          }
+        const pageNumber = Number(act.pdf_page);
+        if (!Number.isInteger(pageNumber) || pageNumber < 1 || pageNumber > doc.numPages) continue;
+        scannedCount++;
+        const qrUrl = await qrVideoService.scanPageForQrCode(doc, pageNumber);
+        if (qrUrl && /^https?:\/\//i.test(qrUrl)) {
+          newOverrides[act.id] = qrUrl.trim();
         }
       }
 
+      const foundCount = Object.keys(newOverrides).length;
       if (foundCount > 0) {
         storageService.setMultipleVideoOverrides(newOverrides);
+        const saved = storageService.getVideoOverrides();
+        const verifiedCount = Object.keys(newOverrides).filter((id) => saved[Number(id)] === newOverrides[Number(id)]).length;
+        if (verifiedCount !== foundCount) {
+          throw new Error(`추출 ${foundCount}개 중 ${verifiedCount}개만 저장 확인되었습니다.`);
+        }
+        onVideoUpdated();
         setStatusMessage({
           type: 'success',
-          text: `총 ${foundCount}개 활동의 PDF QR코드에서 실제 영상 URL을 성공적으로 추출하여 연결했습니다!`
+          text: `배포 PDF ${scannedCount}쪽을 확인했고, QR 영상 주소 ${verifiedCount}개를 이 브라우저에 저장했습니다. 다른 방문자에게 공개하려면 아래 JSON 내보내기 후 배포 데이터에 반영해야 합니다.`
         });
-        onVideoUpdated();
       } else {
         setStatusMessage({
           type: 'error',
-          text: '연결된 PDF에서 추출 가능한 QR코드가 확인되지 않았습니다. 관리자 기능을 통해 URL을 직접 등록해 주세요.'
+          text: `배포 PDF의 활동 페이지 ${scannedCount}쪽을 확인했지만 QR 영상 주소를 찾지 못했습니다. 자동 추출 결과가 0개이므로 임의의 주소는 등록하지 않았습니다.`
         });
       }
     } catch (err: any) {
-      setStatusMessage({ type: 'error', text: 'QR코드 스캔 중 오류: ' + err.message });
+      setStatusMessage({ type: 'error', text: 'QR코드 스캔 또는 저장 중 오류: ' + (err?.message || '알 수 없는 오류') });
     } finally {
       setIsScanning(false);
     }
@@ -193,6 +219,14 @@ export const VideoManagerModal: React.FC<VideoManagerModalProps> = ({
 
           <div className="flex items-center gap-2">
             {/* Auto scan button */}
+            <button
+              onClick={handleExportVideoUrls}
+              className="px-3 py-1.5 rounded-lg bg-white border border-indigo-200 text-indigo-700 hover:bg-indigo-50 font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+              title="현재 브라우저에 저장된 영상 URL을 JSON 파일로 내보내기"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>영상 주소 내보내기</span>
+            </button>
             <button
               onClick={handleAutoScanPdfForQrCodes}
               disabled={isScanning}
