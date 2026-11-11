@@ -208,7 +208,7 @@ export const storageService = {
               secondaryEquipments,
               materials,
               body_activity: false,
-              equipment_activity: true,,
+              equipment_activity: true,
               targetAge: item.targetAge || `만 ${step + 2}세`,
               isDataConnected: true,
               objectives,
