@@ -240,19 +240,6 @@ const categoryCounts = useMemo(() => {
           </p>
         </div>
 
-        {/* 3. Compact Today's and Next Activity */}
-        {todayActivity.id && nextActivity.id && (
-          <TodaySpotlight
-            todayActivity={todayActivity}
-            nextActivity={nextActivity}
-            onSelectActivity={(act) => setSelectedActivity(act)}
-            isCompleted={isActivityCompleted}
-            onToggleComplete={handleToggleComplete}
-            isTeacherLoggedIn={Boolean(currentTeacher)}
-            onShuffleActivities={handleShuffleToday}
-          />
-        )}
-
         {/* 4. Stage Navigation & Equipment Category Filter Controls */}
         <StageNav
           currentStep={currentStep}
