@@ -101,3 +101,14 @@ export const ACTIVITY_EQUIPMENT_RULES: Record<number, EquipmentMappingRule> = {
   89: { category: 'creative', name: "날개 부채", secondary: [], materials: ["자음카드, 날개 부채 여러 개, 가벼운 물체"] }, // 3단계 29차시: 날개 부채 흔들기
   90: { category: 'creative', name: "막대", secondary: [], materials: ["신문지 막대, 공, 바퀴 달린 막대 여러 개"] }, // 3단계 30차시: 바퀴 달린 막대 굴리기
 };
+
+
+/** 기존 화면 및 저장 모듈에서 사용하는 호환 함수 */
+export function getEquipmentRule(id: number): EquipmentMappingRule {
+  return ACTIVITY_EQUIPMENT_RULES[id] ?? {
+    category: 'creative',
+    name: '기타 도구',
+    secondary: [],
+    materials: [],
+  };
+}
