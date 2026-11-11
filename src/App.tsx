@@ -192,8 +192,6 @@ const categoryCounts = useMemo(() => {
   };
 }, [activities, currentStep]);
 
-  }, [activities, currentStep]);
-
   // Navigation inside Modal
   const currentModalIndex = useMemo(() => {
     if (!selectedActivity) return -1;
