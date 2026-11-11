@@ -232,15 +232,16 @@ const categoryCounts = useMemo(() => {
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Short & Clean Introduction */}
         
-<div className="mb-7">
-  <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">
-    <span className="text-[#F28B9B]">하루에 </span>
-    <span className="text-[#F5A623]">하나씩 </span>
-    <span className="text-[#65B88A]">하는 </span>
-    <span className="text-[#38A9E8]">하하하 </span>
-    <span className="text-[#A58AD4]">놀이 </span>
-    <span className="text-[#F28B5B]">체육!</span>
-  </h1>
+<h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">
+  <span className="text-[#38A9E8]">하</span>
+  <span className="text-[#F28B9B]">루에 </span>
+  <span className="text-[#F5A623]">하나씩 </span>
+  <span className="text-[#65B88A]">하는 </span>
+  <span className="text-[#38A9E8]">하하하</span>
+  <span className="text-[#A58AD4]"> 놀이 </span>
+  <span className="text-[#F28B5B]">체육!</span>
+</h1>
+
 
   <p className="text-xs sm:text-sm text-slate-600 mb-1">
     매일 하나씩, 아이들과 신나게 움직이는 유아 체육놀이
