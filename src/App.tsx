@@ -1,8 +1,8 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { ActivityItem, EquipmentCategory, TeacherUser, TeacherRecord } from './types';
 import { storageService } from './services/storage';
 import { Header } from './components/Header';
-import { TodaySpotlight } from './components/TodaySpotlight';
 import { StageNav } from './components/StageNav';
 import { ActivityCard } from './components/ActivityCard';
 import { ActivityDetailModal } from './components/ActivityDetailModal';
@@ -12,37 +12,30 @@ import { PdfManagerModal } from './components/PdfManagerModal';
 import { VideoManagerModal } from './components/VideoManagerModal';
 
 export default function App() {
-  // 1. Core State
+  // 1. 기본 데이터 및 교사 정보
   const [activities, setActivities] = useState<ActivityItem[]>(() => storageService.getActivities());
   const [currentTeacher, setCurrentTeacher] = useState<TeacherUser | null>(() => storageService.getCurrentTeacher());
+
   const [teacherRecord, setTeacherRecord] = useState<TeacherRecord>({
     completedActivityIds: [],
     notes: {},
     lastUpdated: ''
   });
 
-  // 2. Navigation & Filter State
-  const [currentStep, setCurrentStep] = useState<number>(0); // 0: 전체 90개, 1: 1단계, 2: 2단계, 3: 3단계
+  // 2. 검색 및 필터 상태
+  const [currentStep, setCurrentStep] = useState<number>(0);
   const [selectedCategory, setSelectedCategory] = useState<'all' | EquipmentCategory>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [showOnlyCompleted, setShowOnlyCompleted] = useState(false);
 
-  // 3. Modals State
+  // 3. 모달 상태
   const [selectedActivity, setSelectedActivity] = useState<ActivityItem | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isJsonManagerOpen, setIsJsonManagerOpen] = useState(false);
   const [isPdfManagerOpen, setIsPdfManagerOpen] = useState(false);
   const [isVideoManagerOpen, setIsVideoManagerOpen] = useState(false);
 
-  // 4. Today's and Next Activity ID
-  const [todayOffset, setTodayOffset] = useState<number>(() => {
-    const dayOfYear = Math.floor(
-      (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 1000 / 60 / 60 / 24
-    );
-    return (dayOfYear % 90) + 1;
-  });
-
-  // Sync teacher record whenever current teacher changes
+  // 4. 교사 기록 동기화
   useEffect(() => {
     if (currentTeacher) {
       const record = storageService.getTeacherRecord(currentTeacher.id);
@@ -57,116 +50,127 @@ export default function App() {
     }
   }, [currentTeacher]);
 
-  // Handler: Teacher Login
+  // 5. 교사 로그인
   const handleLogin = (user: TeacherUser) => {
     storageService.setCurrentTeacher(user);
     setCurrentTeacher(user);
   };
 
-  // Handler: Teacher Logout
+  // 6. 교사 로그아웃
   const handleLogout = () => {
     storageService.setCurrentTeacher(null);
     setCurrentTeacher(null);
   };
 
-  // Handler: Toggle Activity Complete
+  // 7. 활동 완료 체크
   const handleToggleComplete = (activityId: number) => {
     if (!currentTeacher) {
       setIsAuthModalOpen(true);
       return;
     }
+
     storageService.toggleComplete(currentTeacher.id, activityId);
     setTeacherRecord(storageService.getTeacherRecord(currentTeacher.id));
   };
 
-  // Handler: Save Teacher Note
+  // 8. 교사 수업 메모 저장
   const handleSaveNote = (activityId: number, note: string) => {
     if (!currentTeacher) {
       setIsAuthModalOpen(true);
       return;
     }
+
     storageService.saveNote(currentTeacher.id, activityId, note);
     setTeacherRecord(storageService.getTeacherRecord(currentTeacher.id));
   };
 
-  // Handler: Activities update from JSON manager
+  // 9. 활동 데이터 업데이트
   const handleActivitiesUpdated = (newActivities: ActivityItem[]) => {
     setActivities(newActivities);
+
     if (selectedActivity) {
       const refreshed = newActivities.find(a => a.id === selectedActivity.id) || null;
       setSelectedActivity(refreshed);
     }
   };
 
-  // Helper: check completion
+  // 10. 활동 완료 여부 확인
   const isActivityCompleted = (id: number) => {
     return teacherRecord.completedActivityIds.includes(id);
   };
 
-  // Helper: check if has note
+  // 11. 교사 메모 여부 확인
   const hasActivityNote = (id: number) => {
     return Boolean(teacherRecord.notes[id] && teacherRecord.notes[id].trim());
   };
 
-  // Shuffle Today's Play
-  const handleShuffleToday = () => {
-    const randomId = Math.floor(Math.random() * activities.length) + 1;
-    setTodayOffset(randomId);
-  };
-
-  // Find Today and Next activities
-  const todayActivity = useMemo(() => {
-    return activities.find(a => a.id === todayOffset) || activities[0] || ({} as ActivityItem);
-  }, [activities, todayOffset]);
-
-  const nextActivity = useMemo(() => {
-    const nextId = todayOffset >= activities.length ? 1 : todayOffset + 1;
-    return activities.find(a => a.id === nextId) || activities[1] || ({} as ActivityItem);
-  }, [activities, todayOffset]);
-
-  // Filtered Activities
+  // 12. 활동 목록 필터링
   const filteredActivities = useMemo(() => {
     return activities.filter((activity) => {
-      // Step filter (0: 전체 보기)
+      // 연령 단계 필터
       if (currentStep !== 0 && activity.step !== currentStep) {
         return false;
       }
-      // Equipment category filter (연령 단계와 무관하게 선택한 도구 그룹 모아보기)
+
+      // 도구 분류 필터
       if (selectedCategory !== 'all') {
         if (activity.equipmentCategory !== selectedCategory) {
           return false;
         }
       }
-      // Teacher Completed filter
+
+      // 교사 완료 활동 필터
       if (showOnlyCompleted && currentTeacher && !isActivityCompleted(activity.id)) {
         return false;
       }
-      // Search filter
+
+      // 검색 필터
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase().trim();
+
         const matchesTitle = activity.title.toLowerCase().includes(query);
+
         const matchesNumber =
           String(activity.stepNumber).includes(query) ||
           String(activity.id).includes(query) ||
           String(activity.sequence).includes(query) ||
           `${activity.step}단계`.includes(query);
+
         const matchesTool =
           activity.equipmentName?.toLowerCase().includes(query) ||
           activity.secondaryEquipments?.some((s) => s.toLowerCase().includes(query));
+
         const matchesGoal =
           activity.goal?.toLowerCase().includes(query) ||
           activity.objectives?.some((obj) => obj.toLowerCase().includes(query));
-        const matchesMaterials = activity.materials?.some((m) => m.toLowerCase().includes(query));
 
-        if (!matchesTitle && !matchesNumber && !matchesTool && !matchesGoal && !matchesMaterials) {
+        const matchesMaterials =
+          activity.materials?.some((m) => m.toLowerCase().includes(query));
+
+        if (
+          !matchesTitle &&
+          !matchesNumber &&
+          !matchesTool &&
+          !matchesGoal &&
+          !matchesMaterials
+        ) {
           return false;
         }
       }
+
       return true;
     });
-  }, [activities, currentStep, selectedCategory, showOnlyCompleted, searchQuery, currentTeacher, teacherRecord]);
+  }, [
+    activities,
+    currentStep,
+    selectedCategory,
+    showOnlyCompleted,
+    searchQuery,
+    currentTeacher,
+    teacherRecord
+  ]);
 
-  // Counts for Stage Navigation & Equipment Categories
+  // 13. 단계별 활동 개수
   const stepCounts = useMemo(() => {
     return {
       total: activities.length,
@@ -176,23 +180,24 @@ export default function App() {
     };
   }, [activities]);
 
-const categoryCounts = useMemo(() => {
-  const targetPool = currentStep === 0
-    ? activities
-    : activities.filter((a) => a.step === currentStep);
+  // 14. 도구별 활동 개수
+  const categoryCounts = useMemo(() => {
+    const targetPool = currentStep === 0
+      ? activities
+      : activities.filter((a) => a.step === currentStep);
 
-  return {
-    ball: targetPool.filter((a) => a.equipmentCategory === 'ball').length,
-    hoop: targetPool.filter((a) => a.equipmentCategory === 'hoop').length,
-    rope: targetPool.filter((a) => a.equipmentCategory === 'rope').length,
-    balanceBeam: targetPool.filter((a) => a.equipmentCategory === 'balanceBeam').length,
-    mat: targetPool.filter((a) => a.equipmentCategory === 'mat').length,
-    vaultingBox: targetPool.filter((a) => a.equipmentCategory === 'vaultingBox').length,
-    creative: targetPool.filter((a) => a.equipmentCategory === 'creative').length
-  };
-}, [activities, currentStep]);
+    return {
+      ball: targetPool.filter((a) => a.equipmentCategory === 'ball').length,
+      hoop: targetPool.filter((a) => a.equipmentCategory === 'hoop').length,
+      rope: targetPool.filter((a) => a.equipmentCategory === 'rope').length,
+      balanceBeam: targetPool.filter((a) => a.equipmentCategory === 'balanceBeam').length,
+      mat: targetPool.filter((a) => a.equipmentCategory === 'mat').length,
+      vaultingBox: targetPool.filter((a) => a.equipmentCategory === 'vaultingBox').length,
+      creative: targetPool.filter((a) => a.equipmentCategory === 'creative').length
+    };
+  }, [activities, currentStep]);
 
-  // Navigation inside Modal
+  // 15. 상세보기 모달 내 활동 이동
   const currentModalIndex = useMemo(() => {
     if (!selectedActivity) return -1;
     return activities.findIndex(a => a.id === selectedActivity.id);
@@ -210,12 +215,14 @@ const categoryCounts = useMemo(() => {
     }
   };
 
+  // 16. 교사 기록 통계
   const completedCount = teacherRecord.completedActivityIds.length;
   const notesCount = Object.keys(teacherRecord.notes).length;
 
   return (
     <div className="min-h-screen bg-[#FFFDF8] text-[#34495E] flex flex-col font-sans">
-      {/* 1. Simplified Top Header */}
+
+      {/* 상단 헤더 */}
       <Header
         currentTeacher={currentTeacher}
         onOpenAuth={() => setIsAuthModalOpen(true)}
@@ -228,33 +235,32 @@ const categoryCounts = useMemo(() => {
         onSelectStep={(step) => setCurrentStep(step)}
       />
 
-      {/* 2. Main Content */}
+      {/* 메인 콘텐츠 */}
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {/* Short & Clean Introduction */}
-        
-<h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">
-  <span className="text-[#38A9E8]">하</span>
-  <span className="text-[#F28B9B]">루에 </span>
-  <span className="text-[#F5A623]">하나씩 </span>
-  <span className="text-[#65B88A]">하는 </span>
-  <span className="text-[#38A9E8]">하하하</span>
-  <span className="text-[#A58AD4]"> 놀이 </span>
-  <span className="text-[#F28B5B]">체육!</span>
-</h1>
 
+        {/* 사이트 제목 및 소개 */}
+        <div className="mb-7">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">
+            <span className="text-[#38A9E8]">하</span>
+            <span className="text-[#F28B9B]">루에 </span>
+            <span className="text-[#F5A623]">하나씩 </span>
+            <span className="text-[#65B88A]">하는 </span>
+            <span className="text-[#38A9E8]">하하하</span>
+            <span className="text-[#A58AD4]"> 놀이 </span>
+            <span className="text-[#F28B5B]">체육!</span>
+          </h1>
 
-  <p className="text-xs sm:text-sm text-slate-600 mb-1">
-    매일 하나씩, 아이들과 신나게 움직이는 유아 체육놀이
-  </p>
+          <p className="text-xs sm:text-sm text-slate-600 mb-1">
+            매일 하나씩, 아이들과 신나게 움직이는 유아 체육놀이
+          </p>
 
-  <p className="text-[11px] sm:text-xs text-slate-400 leading-relaxed">
-    자료 출처: 「다 함께 운동놀이」 원본 자료를 바탕으로
-    수업에 활용하기 쉽도록 구성한 교육 자료 사이트입니다.
-  </p>
-</div>
+          <p className="text-[11px] sm:text-xs text-slate-400 leading-relaxed">
+            자료 출처: 「다 함께 운동놀이」 원본 자료를 바탕으로
+            수업에 활용하기 쉽도록 구성한 교육 자료 사이트입니다.
+          </p>
+        </div>
 
-
-        {/* 4. Stage Navigation & Equipment Category Filter Controls */}
+        {/* 단계별 및 도구별 분류 */}
         <StageNav
           currentStep={currentStep}
           onSelectStep={(step) => setCurrentStep(step)}
@@ -269,7 +275,7 @@ const categoryCounts = useMemo(() => {
           categoryCounts={categoryCounts}
         />
 
-        {/* 5. Activities Grid (2~3 cols on PC, 1 col on Mobile) */}
+        {/* 활동 목록 */}
         {filteredActivities.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {filteredActivities.map((activity) => (
@@ -292,9 +298,11 @@ const categoryCounts = useMemo(() => {
             <h4 className="text-sm font-semibold text-slate-800 mb-1">
               검색 조건과 일치하는 활동이 없습니다
             </h4>
+
             <p className="text-xs text-slate-500 mb-3">
               다른 도구를 선택하시거나 검색어를 변경해 보세요.
             </p>
+
             <button
               onClick={() => {
                 setSearchQuery('');
@@ -309,19 +317,20 @@ const categoryCounts = useMemo(() => {
         )}
       </main>
 
-      {/* 6. Clean Minimalist Footer */}
+      {/* 하단 푸터 */}
       <footer className="bg-white border-t border-slate-200/60 py-6 px-4 sm:px-6 text-xs text-slate-400 mt-12">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="font-semibold text-slate-700">
             하하하 체육놀이
           </div>
+
           <div className="text-[11px] text-slate-400 text-center sm:text-right">
             유아교육기관 교사를 위한 체육놀이 교육 자료실
           </div>
         </div>
       </footer>
 
-      {/* Modals */}
+      {/* 활동 상세보기 모달 */}
       {selectedActivity && (
         <ActivityDetailModal
           activity={selectedActivity}
@@ -343,6 +352,7 @@ const categoryCounts = useMemo(() => {
         />
       )}
 
+      {/* 교사 로그인 모달 */}
       <TeacherAuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
@@ -353,6 +363,7 @@ const categoryCounts = useMemo(() => {
         notesCount={notesCount}
       />
 
+      {/* 활동 데이터 관리 */}
       <JsonDataManagerModal
         isOpen={isJsonManagerOpen}
         onClose={() => setIsJsonManagerOpen(false)}
@@ -360,6 +371,7 @@ const categoryCounts = useMemo(() => {
         onActivitiesUpdated={handleActivitiesUpdated}
       />
 
+      {/* PDF 관리 */}
       <PdfManagerModal
         isOpen={isPdfManagerOpen}
         onClose={() => setIsPdfManagerOpen(false)}
@@ -368,6 +380,7 @@ const categoryCounts = useMemo(() => {
         }}
       />
 
+      {/* 영상 관리 */}
       <VideoManagerModal
         isOpen={isVideoManagerOpen}
         onClose={() => setIsVideoManagerOpen(false)}
@@ -375,11 +388,15 @@ const categoryCounts = useMemo(() => {
         onVideoUpdated={() => {
           const refreshed = storageService.getActivities();
           setActivities(refreshed);
+
           if (selectedActivity) {
-            setSelectedActivity(refreshed.find((a) => a.id === selectedActivity.id) || null);
+            setSelectedActivity(
+              refreshed.find((a) => a.id === selectedActivity.id) || null
+            );
           }
         }}
       />
+
     </div>
   );
 }
