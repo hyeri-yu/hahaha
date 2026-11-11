@@ -42,16 +42,16 @@ export const StageNav: React.FC<StageNavProps> = ({
   ];
 
   const categories: Array<{ id: 'all' | EquipmentCategory; label: string; count: number }> = [
-    { id: 'all', label: '전체 도구', count: stepCounts.total },
-    { id: 'ball', label: '공운동', count: categoryCounts.ball },
-    { id: 'hoop', label: '후프운동', count: categoryCounts.hoop },
-    { id: 'scarf', label: '스카프 운동', count: categoryCounts.scarf },
-    { id: 'stick', label: '막대 운동', count: categoryCounts.stick },
-    { id: 'rope', label: '줄 운동', count: categoryCounts.rope },
-    { id: 'balloon', label: '풍선 운동', count: categoryCounts.balloon },
-    { id: 'barebody', label: '맨몸운동', count: categoryCounts.barebody },
-    { id: 'other', label: '기타 도구', count: categoryCounts.other }
+    { id: 'all', label: '전체', count: stepCounts.total },
+    { id: 'ball', label: '공', count: categoryCounts.ball },
+    { id: 'hoop', label: '후프', count: categoryCounts.hoop },
+    { id: 'rope', label: '줄', count: categoryCounts.rope },
+    { id: 'balanceBeam', label: '평균대', count: categoryCounts.balanceBeam },
+    { id: 'mat', label: '매트', count: categoryCounts.mat },
+    { id: 'vaultingBox', label: '뜀틀', count: categoryCounts.vaultingBox },
+    { id: 'creative', label: '창의적인 운동도구', count: categoryCounts.creative }
   ];
+
 
   return (
     <div className="space-y-4 mb-6">
