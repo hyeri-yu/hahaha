@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ActivityItem, TeacherUser, EQUIPMENT_CONFIG } from '../types';
 import {
@@ -12,7 +13,6 @@ import {
   Video,
   Play,
   ExternalLink,
-  Edit,
   Package
 } from 'lucide-react';
 import { PdfViewer } from './PdfViewer';
@@ -45,9 +45,6 @@ export const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
   onToggleComplete,
   noteText,
   onSaveNote,
-  currentTeacher,
-  onOpenAuth,
-  onOpenJsonManager,
   onNavigatePrev,
   onNavigateNext,
   hasPrev,
@@ -73,18 +70,26 @@ export const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
     setTimeout(() => setIsSavedNotice(false), 2000);
   };
 
+  const handleNoteChange = (value: string) => {
+    setLocalNote(value);
+    onSaveNote(activity.id, value);
+    setIsSavedNotice(true);
+  };
+
   const handlePrint = () => {
     window.print();
   };
 
-  const equipStyle = EQUIPMENT_CONFIG[activity.equipmentCategory] || EQUIPMENT_CONFIG.barebody;
+  const equipStyle =
+    EQUIPMENT_CONFIG[activity.equipmentCategory] ||
+    EQUIPMENT_CONFIG.barebody;
 
   const objectivesList: string[] =
     activity.objectives && activity.objectives.length > 0
       ? activity.objectives
       : activity.goal
-      ? [activity.goal]
-      : [];
+        ? [activity.goal]
+        : [];
 
   const hasVideoUrl = Boolean(activity.videoUrl && activity.videoUrl.trim());
   const embedInfo = qrVideoService.getEmbedUrl(activity.videoUrl);
@@ -92,24 +97,31 @@ export const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 backdrop-blur-2xs flex items-center justify-center p-2 sm:p-4">
       <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[94vh] flex flex-col shadow-2xl border border-slate-200/90 overflow-hidden">
-        {/* Top: Header with Prominent Title and Direct Badges */}
+
+        {/* 상단 제목 */}
         <div className="px-5 sm:px-6 py-4 border-b border-slate-100 flex items-start justify-between gap-4 sticky top-0 bg-white z-20">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 mb-1.5">
               <span className="font-semibold text-[#0284C7] bg-[#E8F6FE] px-2 py-0.5 rounded">
                 {activity.step}단계 {String(activity.stepNumber).padStart(2, '0')}번
               </span>
+
               <span>·</span>
-              {/* 도구 분류 파스텔 뱃지 */}
+
               <span
                 className={`font-semibold px-2 py-0.5 rounded border ${equipStyle.badgeBg} ${equipStyle.badgeText} ${equipStyle.badgeBorder} inline-flex items-center gap-1`}
               >
-                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: equipStyle.dotColor }} />
+                <span
+                  className="w-1.5 h-1.5 rounded-full"
+                  style={{ backgroundColor: equipStyle.dotColor }}
+                />
                 <span>{equipStyle.label}</span>
               </span>
+
               <span>·</span>
               <span>{activity.targetAge || `만 ${activity.step + 2}세`}</span>
               <span>·</span>
+
               <span className="font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60 inline-flex items-center gap-1">
                 <BookOpen className="w-3 h-3" />
                 <span>PDF {activity.pdf_page}쪽</span>
@@ -129,6 +141,7 @@ export const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
             >
               <Printer className="w-4 h-4" />
             </button>
+
             <button
               onClick={onClose}
               className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
@@ -139,55 +152,68 @@ export const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
           </div>
         </div>
 
-        {/* Scrollable Content */}
+        {/* 스크롤 콘텐츠 */}
         <div className="p-4 sm:p-6 overflow-y-auto space-y-5">
-          {/* 1. 활동 목표 및 준비물 요약 (상단 간결 배치) */}
+
+          {/* 1. 활동 목표 및 준비물 */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {/* 활동 목표 */}
             <section className="md:col-span-2 p-4 rounded-xl bg-[#F8FAFC] border border-slate-200/70 space-y-2">
               <div className="flex items-center justify-between">
                 <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-[#0284C7]" />
                   <span>활동 목표</span>
                 </h3>
-                <span className="text-[11px] text-slate-400">표준 누리과정 연계</span>
+                <span className="text-[11px] text-slate-400">
+                  표준 누리과정 연계
+                </span>
               </div>
 
               {objectivesList.length > 0 ? (
                 <ul className="space-y-1.5 pt-1">
                   {objectivesList.map((obj, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-xs sm:text-sm text-slate-700 leading-relaxed">
+                    <li
+                      key={idx}
+                      className="flex items-start gap-2 text-xs sm:text-sm text-slate-700 leading-relaxed"
+                    >
                       <span className="w-1.5 h-1.5 rounded-full bg-[#75C9F5] mt-2 shrink-0" />
                       <span>{obj}</span>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <span className="text-slate-400 text-xs">활동 목표 준비 중</span>
+                <span className="text-slate-400 text-xs">
+                  활동 목표 준비 중
+                </span>
               )}
             </section>
 
-            {/* 준비물 및 도구 */}
             <section className="p-4 rounded-xl bg-[#FAF6F0]/70 border border-[#E7DFD5] space-y-2">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                  <Package className="w-3.5 h-3.5 text-amber-700" />
-                  <span>사용 도구 & 준비물</span>
-                </h3>
-              </div>
+              <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                <Package className="w-3.5 h-3.5 text-amber-700" />
+                <span>사용 도구 & 준비물</span>
+              </h3>
+
               <div className="space-y-2 pt-1 text-xs text-slate-700">
                 <div>
-                  <span className="text-[11px] text-slate-400 block mb-0.5">대표 도구:</span>
+                  <span className="text-[11px] text-slate-400 block mb-0.5">
+                    대표 도구:
+                  </span>
                   <span className={`inline-block font-semibold px-2 py-0.5 rounded border ${equipStyle.badgeBg} ${equipStyle.badgeText} ${equipStyle.badgeBorder}`}>
                     {activity.equipmentName || equipStyle.label}
                   </span>
                 </div>
+
                 {activity.materials && activity.materials.length > 0 && (
                   <div>
-                    <span className="text-[11px] text-slate-400 block mb-1">상세 준비물:</span>
+                    <span className="text-[11px] text-slate-400 block mb-1">
+                      상세 준비물:
+                    </span>
                     <div className="flex flex-wrap gap-1">
                       {activity.materials.map((m, i) => (
-                        <span key={i} className="px-1.5 py-0.5 rounded bg-white border border-slate-200 text-[11px] text-slate-600">
+                        <span
+                          key={i}
+                          className="px-1.5 py-0.5 rounded bg-white border border-slate-200 text-[11px] text-slate-600"
+                        >
                           {m}
                         </span>
                       ))}
@@ -198,7 +224,7 @@ export const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
             </section>
           </div>
 
-          {/* 2. 동영상 섹션 & '활동 동영상 보기' 버튼 */}
+          {/* 2. 동영상 */}
           <section className="p-4 rounded-xl bg-indigo-50/50 border border-indigo-100 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
@@ -240,6 +266,7 @@ export const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
                     <span>새 창에서 영상 열기</span>
                   </a>
                 )}
+
                 {onOpenVideoManager && (
                   <button
                     type="button"
@@ -252,7 +279,6 @@ export const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
               </div>
             </div>
 
-            {/* Video Player Display */}
             {hasVideoUrl && showVideoPlayer && (
               <div className="pt-2">
                 {embedInfo.isEmbeddable && embedInfo.embedUrl ? (
@@ -285,7 +311,7 @@ export const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
             )}
           </section>
 
-          {/* 3. 원본 활동 자료 보기 Button & Built-in PDF Viewer */}
+          {/* 3. 원본 PDF */}
           <section className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
@@ -299,8 +325,11 @@ export const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
                     원본 활동 자료 보기 (PDF {activity.pdf_page}쪽)
                   </span>
                 </button>
+
                 <span className="text-xs text-slate-500 hidden sm:inline">
-                  {showPdfViewer ? '현재 활동 쪽이 펼쳐져 있습니다.' : '버튼을 눌러 원본 교재를 확인하세요.'}
+                  {showPdfViewer
+                    ? '현재 활동 쪽이 펼쳐져 있습니다.'
+                    : '버튼을 눌러 원본 교재를 확인하세요.'}
                 </span>
               </div>
 
@@ -315,7 +344,6 @@ export const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
               )}
             </div>
 
-            {/* In-app PDF Viewer Rendered Here */}
             {showPdfViewer && (
               <div className="mt-2">
                 <PdfViewer
@@ -327,56 +355,46 @@ export const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
             )}
           </section>
 
-          {/* 4. 교사 수업 메모 (Teacher's personal log & note) */}
+          {/* 4. 로그인 없이 사용하는 수업 메모 */}
           <section className="pt-4 border-t border-slate-100">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-slate-400" />
-                <span>교사 수업 메모</span>
+                <span>수업 메모</span>
               </h3>
-              {currentTeacher && (
-                <span className="text-[11px] text-slate-400">
-                  {currentTeacher.name} 전용 (타 교사 열람 불가)
-                </span>
-              )}
+
+              <span className="text-[11px] text-slate-400">
+                이 브라우저에 자동 저장됩니다.
+              </span>
             </div>
 
-            {currentTeacher ? (
-              <div className="space-y-2">
-                <textarea
-                  rows={2}
-                  value={localNote}
-                  onChange={(e) => setLocalNote(e.target.value)}
-                  placeholder="오늘 아이들과 수업한 내용, 난이도 조절 또는 다음 수업 시 유의점을 기록해 보세요."
-                  className="w-full text-xs p-3 rounded-lg border border-slate-200 focus:outline-none focus:border-[#75C9F5] resize-none"
-                />
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-emerald-600">
-                    {isSavedNotice && '메모가 저장되었습니다.'}
-                  </span>
-                  <button
-                    onClick={handleSaveNote}
-                    className="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-medium hover:bg-slate-800 transition-colors cursor-pointer"
-                  >
-                    메모 저장
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="p-3 rounded-lg bg-[#F8FAFC] text-xs text-slate-500 flex items-center justify-between">
-                <span>로그인 후 수업 메모 및 완료 체크가 가능합니다.</span>
+            <div className="space-y-2">
+              <textarea
+                rows={3}
+                value={localNote}
+                onChange={(e) => handleNoteChange(e.target.value)}
+                placeholder="오늘 아이들과 수업한 내용, 난이도 조절 또는 다음 수업 시 유의점을 기록해 보세요."
+                className="w-full text-xs p-3 rounded-lg border border-slate-200 focus:outline-none focus:border-[#75C9F5] resize-y"
+              />
+
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] text-emerald-600">
+                  {isSavedNotice && '메모가 저장되었습니다.'}
+                </span>
+
                 <button
-                  onClick={onOpenAuth}
-                  className="text-xs font-semibold text-[#0284C7] hover:underline cursor-pointer"
+                  type="button"
+                  onClick={handleSaveNote}
+                  className="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-medium hover:bg-slate-800 transition-colors cursor-pointer"
                 >
-                  로그인하기
+                  메모 저장
                 </button>
               </div>
-            )}
+            </div>
           </section>
         </div>
 
-        {/* Bottom Bar: Action buttons (Prev, Next, Complete, Close) */}
+        {/* 하단 버튼 */}
         <div className="px-5 sm:px-6 py-3 border-t border-slate-100 bg-[#F8FAFC]/50 flex items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-1.5">
             <button
@@ -387,6 +405,7 @@ export const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
               <ChevronLeft className="w-3.5 h-3.5" />
               <span>이전 활동</span>
             </button>
+
             <button
               onClick={onNavigateNext}
               disabled={!hasNext}
@@ -398,19 +417,18 @@ export const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            {currentTeacher && (
-              <button
-                onClick={() => onToggleComplete(activity.id)}
-                className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer inline-flex items-center gap-1.5 ${
-                  isCompleted
-                    ? 'bg-emerald-600 text-white'
-                    : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
-                }`}
-              >
-                <Check className="w-3.5 h-3.5" />
-                <span>{isCompleted ? '활동 완료됨' : '활동 완료 체크'}</span>
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => onToggleComplete(activity.id)}
+              className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer inline-flex items-center gap-1.5 ${
+                isCompleted
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
+              }`}
+            >
+              <Check className="w-3.5 h-3.5" />
+              <span>{isCompleted ? '활동 완료됨' : '활동 완료 체크'}</span>
+            </button>
 
             <button
               onClick={onClose}
