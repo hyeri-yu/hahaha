@@ -188,9 +188,10 @@ export const storageService = {
             // 관리자 영상 URL 오버라이드 확인
             const videoOverrides = this.getVideoOverrides();
             const overriddenVideo = videoOverrides[id];
-            const finalVideoUrl = overriddenVideo !== undefined
-              ? overriddenVideo
-              : (VIDEO_URLS[id] || item.videoUrl || null);
+            const finalVideoUrl =
+              (typeof overriddenVideo === 'string' && overriddenVideo.trim() ? overriddenVideo.trim() : null) ||
+              VIDEO_URLS[id] ||
+              (typeof item.videoUrl === 'string' && item.videoUrl.trim() ? item.videoUrl.trim() : null);
             const isVideoReady = Boolean(finalVideoUrl && finalVideoUrl.trim());
 
             return {
@@ -229,20 +230,21 @@ export const storageService = {
     } catch (e) {
       console.error('Failed to load stored activities, falling back to initial data', e);
     }
-    // 사용자 지정 활동 데이터가 없어 기본 90개 활동을 사용하는 경우에도
-    // 관리자 영상 URL 오버라이드를 동일하게 적용합니다.
-    const defaultActivities = getAllInitialActivities();
-    const videoOverrides = this.getVideoOverrides();
-    return defaultActivities.map((activity) => {
+    // 사용자 지정 활동 데이터가 없어도 기본 활동 90개에 영상 주소를 연결합니다.
+    return getAllInitialActivities().map((activity) => {
+      const videoOverrides = this.getVideoOverrides();
       const overriddenVideo = videoOverrides[activity.id];
-      const finalVideoUrl = overriddenVideo !== undefined
-        ? overriddenVideo
-        : (VIDEO_URLS[activity.id] || activity.videoUrl || null);
+      const videoUrl =
+        (typeof overriddenVideo === 'string' && overriddenVideo.trim() ? overriddenVideo.trim() : null) ||
+        VIDEO_URLS[activity.id] ||
+        activity.videoUrl ||
+        null;
+
       return {
         ...activity,
-        videoUrl: finalVideoUrl,
-        qrCodeUrl: activity.qrCodeUrl || finalVideoUrl,
-        isVideoReady: Boolean(finalVideoUrl && finalVideoUrl.trim())
+        videoUrl,
+        qrCodeUrl: activity.qrCodeUrl || videoUrl,
+        isVideoReady: Boolean(videoUrl)
       };
     });
   },
@@ -340,7 +342,6 @@ export const storageService = {
       localStorage.setItem(STORAGE_KEYS.VIDEO_OVERRIDES, JSON.stringify(overrides));
     } catch (e) {
       console.error('Failed to set video override', e);
-      throw e;
     }
   },
 
@@ -351,7 +352,6 @@ export const storageService = {
       localStorage.setItem(STORAGE_KEYS.VIDEO_OVERRIDES, JSON.stringify(updated));
     } catch (e) {
       console.error('Failed to set multiple video overrides', e);
-      throw e;
     }
   },
 
@@ -367,6 +367,22 @@ export const storageService = {
   resetActivities(): ActivityItem[] {
     localStorage.removeItem(STORAGE_KEYS.ACTIVITIES_DATA);
     localStorage.removeItem(STORAGE_KEYS.VIDEO_OVERRIDES);
-    return getAllInitialActivities();
+    // 사용자 지정 활동 데이터가 없어도 기본 활동 90개에 영상 주소를 연결합니다.
+    return getAllInitialActivities().map((activity) => {
+      const videoOverrides = this.getVideoOverrides();
+      const overriddenVideo = videoOverrides[activity.id];
+      const videoUrl =
+        (typeof overriddenVideo === 'string' && overriddenVideo.trim() ? overriddenVideo.trim() : null) ||
+        VIDEO_URLS[activity.id] ||
+        activity.videoUrl ||
+        null;
+
+      return {
+        ...activity,
+        videoUrl,
+        qrCodeUrl: activity.qrCodeUrl || videoUrl,
+        isVideoReady: Boolean(videoUrl)
+      };
+    });
   }
 };
