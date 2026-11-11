@@ -180,7 +180,7 @@ export const storageService = {
 
             // 도구 규칙 확인
             const rule = getEquipmentRule(id);
-            const category: EquipmentCategory = item.equipmentCategory || rule.category;
+            const category: EquipmentCategory = rule.category;
             const equipmentName = item.equipmentName || rule.name;
             const secondaryEquipments = item.secondaryEquipments || rule.secondary;
             const materials = Array.isArray(item.materials) && item.materials.length > 0 ? item.materials : rule.materials;
