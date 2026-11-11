@@ -107,13 +107,38 @@ export const ACTIVITY_EQUIPMENT_RULES: Record<number, EquipmentMappingRule> = {
   90: { category: 'ball', name: '빅볼 (대형 짐볼)', secondary: ['결승점 콘'], materials: ['지름 65cm 짐볼 4개'] }
 };
 
-export const getEquipmentRule = (activityId: number): EquipmentMappingRule => {
-  return (
-    ACTIVITY_EQUIPMENT_RULES[activityId] || {
-      category: 'barebody',
-      name: '맨몸',
+// 원본 PDF의 단계별 활동 순서에 따른 7개 운동도구 분류
+const getCategoryByActivityId = (
+  activityId: number
+): EquipmentCategory => {
+  const stepNumber = ((activityId - 1) % 30) + 1;
+
+  if (stepNumber <= 5) return 'ball';
+  if (stepNumber <= 10) return 'hoop';
+  if (stepNumber <= 15) return 'rope';
+  if (stepNumber <= 20) return 'balanceBeam';
+  if (stepNumber <= 23) return 'mat';
+  if (stepNumber <= 25) return 'vaultingBox';
+
+  return 'creative';
+};
+
+export const getEquipmentRule = (
+  activityId: number
+): EquipmentMappingRule & { category: EquipmentCategory } => {
+  const rule = ACTIVITY_EQUIPMENT_RULES[activityId];
+
+  if (!rule) {
+    return {
+      category: getCategoryByActivityId(activityId),
+      name: '창의적인 운동도구',
       secondary: [],
-      materials: ['편안한 운동복']
-    }
-  );
+      materials: []
+    };
+  }
+
+  return {
+    ...rule,
+    category: getCategoryByActivityId(activityId)
+  };
 };
