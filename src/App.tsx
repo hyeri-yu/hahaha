@@ -243,11 +243,12 @@ export default function App() {
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">
             <span className="text-[#38A9E8]">하</span>
             <span className="text-[#F28B9B]">루에 </span>
-            <span className="text-[#F5A623]">하나씩 </span>
-            <span className="text-[#65B88A]">하는 </span>
+            <span className="text-[#38A9E8]">하</span>
+            <span className="text-[#F5A623]">나씩 </span>
+            <span className="text-[#38A9E8]">하</span>
+            <span className="text-[#65B88A]">는 </span>
             <span className="text-[#38A9E8]">하하하</span>
-            <span className="text-[#A58AD4]"> 놀이 </span>
-            <span className="text-[#F28B5B]">체육!</span>
+            <span className="text-[#A58AD4]">놀이 체육 </span>
           </h1>
 
           <p className="text-xs sm:text-sm text-slate-600 mb-1">
