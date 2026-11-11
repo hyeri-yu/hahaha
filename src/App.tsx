@@ -176,19 +176,22 @@ export default function App() {
     };
   }, [activities]);
 
-  const categoryCounts = useMemo(() => {
-    // If a step is selected (1, 2, 3), show count within that step, or across all if 0
-    const targetPool = currentStep === 0 ? activities : activities.filter((a) => a.step === currentStep);
-    return {
-      ball: targetPool.filter((a) => a.equipmentCategory === 'ball').length,
-      hoop: targetPool.filter((a) => a.equipmentCategory === 'hoop').length,
-      scarf: targetPool.filter((a) => a.equipmentCategory === 'scarf').length,
-      stick: targetPool.filter((a) => a.equipmentCategory === 'stick').length,
-      rope: targetPool.filter((a) => a.equipmentCategory === 'rope').length,
-      balloon: targetPool.filter((a) => a.equipmentCategory === 'balloon').length,
-      barebody: targetPool.filter((a) => a.equipmentCategory === 'barebody').length,
-      other: targetPool.filter((a) => a.equipmentCategory === 'other').length
-    };
+const categoryCounts = useMemo(() => {
+  const targetPool = currentStep === 0
+    ? activities
+    : activities.filter((a) => a.step === currentStep);
+
+  return {
+    ball: targetPool.filter((a) => a.equipmentCategory === 'ball').length,
+    hoop: targetPool.filter((a) => a.equipmentCategory === 'hoop').length,
+    rope: targetPool.filter((a) => a.equipmentCategory === 'rope').length,
+    balanceBeam: targetPool.filter((a) => a.equipmentCategory === 'balanceBeam').length,
+    mat: targetPool.filter((a) => a.equipmentCategory === 'mat').length,
+    vaultingBox: targetPool.filter((a) => a.equipmentCategory === 'vaultingBox').length,
+    creative: targetPool.filter((a) => a.equipmentCategory === 'creative').length
+  };
+}, [activities, currentStep]);
+
   }, [activities, currentStep]);
 
   // Navigation inside Modal
