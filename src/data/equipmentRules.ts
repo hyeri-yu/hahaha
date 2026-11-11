@@ -1,160 +1,103 @@
-import { ActivityItem, EquipmentCategory } from '../types';
+import { EquipmentCategory } from '../types';
 
 interface EquipmentMappingRule {
-  category: string;
+  category: EquipmentCategory;
   name: string;
-  secondary?: string[];
-  materials?: string[];
+  secondary: string[];
+  materials: string[];
 }
 
-// 90개 활동 정밀 도구 매핑 기준
-// 1단계(1~30), 2단계(31~60), 3단계(61~90)
+// 원본 PDF의 차시별 ‘도구를 이용한 운동’ 활동명과 자료 항목을 기준으로 구성합니다.
+// ID 1~30: 1단계, 31~60: 2단계, 61~90: 3단계
 export const ACTIVITY_EQUIPMENT_RULES: Record<number, EquipmentMappingRule> = {
-  // === 1단계 (만 3세) ===
-  1: { category: 'barebody', name: '맨몸', secondary: [], materials: ['편안한 운동복'] },
-  2: { category: 'scarf', name: '스카프', secondary: ['바구니'], materials: ['알록달록 실크 스카프', '수거 바구니'] },
-  3: { category: 'barebody', name: '맨몸', secondary: [], materials: ['음악 재생기'] },
-  4: { category: 'hoop', name: '훌라후프', secondary: ['미끄럼방지 패드'], materials: ['소형 훌라후프 6~8개', '바닥 고정 테이프'] },
-  5: { category: 'barebody', name: '맨몸 (매트)', secondary: ['안전매트'], materials: ['유아용 안전 롤매트'] },
-  6: { category: 'other', name: '신문지', secondary: ['바구니'], materials: ['재활용 신문지', '수거함 바구니'] },
-  7: { category: 'barebody', name: '맨몸', secondary: [], materials: ['신체 부위 그림카드'] },
-  8: { category: 'balloon', name: '풍선', secondary: ['부채'], materials: ['알록달록 라텍스 풍선', '유아용 부채'] },
-  9: { category: 'other', name: '플레이터널', secondary: ['매트'], materials: ['접이식 천 터널', '바닥 매트'] },
-  10: { category: 'other', name: '콩주머니', secondary: ['과녁판'], materials: ['색동 콩주머니', '바닥 원형 과녁판'] },
-  11: { category: 'barebody', name: '맨몸', secondary: [], materials: ['동물 머리띠'] },
-  12: { category: 'other', name: '색깔 고깔(콘)', secondary: ['꼬리 끈'], materials: ['소형 마커콘', '벨크로 꼬리 벨트'] },
-  13: { category: 'other', name: '평균대(외나무다리)', secondary: ['매트'], materials: ['스펀지 소프트 평균대', '보호 매트'] },
-  14: { category: 'other', name: '종이컵', secondary: ['소프트볼'], materials: ['대형 종이컵 30개', '폭신한 스펀지볼'] },
-  15: { category: 'barebody', name: '맨몸', secondary: [], materials: ['징 또는 탬버린'] },
-  16: { category: 'other', name: '스펀지 쿠션/베개', secondary: ['매트'], materials: ['폭신한 쿠션 블록 6개'] },
-  17: { category: 'barebody', name: '맨몸 (바람개비)', secondary: ['바람개비'], materials: ['종이 바람개비'] },
-  18: { category: 'ball', name: '볼풀공', secondary: ['숟가락/국자'], materials: ['색깔 볼풀공 50개', '유아용 국자', '바구니'] },
-  19: { category: 'barebody', name: '맨몸', secondary: [], materials: ['신나는 동요 음원'] },
-  20: { category: 'stick', name: '리본 막대', secondary: ['음원'], materials: ['체조용 손잡이 리본 막대'] },
-  21: { category: 'barebody', name: '맨몸', secondary: ['연못 시트'], materials: ['연못 모양 바닥 시트'] },
-  22: { category: 'other', name: '스펀지 블록', secondary: ['매트'], materials: ['EVA 소프트 블록 10개'] },
-  23: { category: 'barebody', name: '맨몸', secondary: [], materials: ['얼음 빙판 바닥 표시 테이프'] },
-  24: { category: 'rope', name: '줄 (밧줄)', secondary: ['매트'], materials: ['부드러운 면 밧줄(5m)'] },
-  25: { category: 'barebody', name: '맨몸', secondary: [], materials: ['오리 인형/모자'] },
-  26: { category: 'ball', name: '탱탱볼', secondary: ['바구니'], materials: ['소형 고무 탱탱볼 20개'] },
-  27: { category: 'barebody', name: '맨몸', secondary: [], materials: ['우주 배경 음악'] },
-  28: { category: 'other', name: '종이 접시', secondary: ['신호등 카드'], materials: ['두꺼운 종이 접시', '신호등 색깔 카드'] },
-  29: { category: 'barebody', name: '맨몸 (그림자)', secondary: ['조명'], materials: ['프로젝터 또는 자연광'] },
-  30: { category: 'other', name: '비눗방울', secondary: [], materials: ['무독성 비눗방울 놀이 세트'] },
-
-  // === 2단계 (만 4세) ===
-  31: { category: 'rope', name: '고무줄/끈 (레이저)', secondary: ['고깔'], materials: ['형광 고무줄', '고깔 지지대'] },
-  32: { category: 'other', name: '고깔(콘)', secondary: ['바닥 마커'], materials: ['컬러 트래픽 콘 8개'] },
-  33: { category: 'barebody', name: '맨몸', secondary: [], materials: ['초시계', '중심잡기 매트'] },
-  34: { category: 'ball', name: '탁구공', secondary: ['계란판'], materials: ['컬러 탁구공 30개', '종이 계란판'] },
-  35: { category: 'barebody', name: '맨몸', secondary: [], materials: ['방울 소리 센서/종'] },
-  36: { category: 'hoop', name: '훌라후프', secondary: ['끈'], materials: ['중형 훌라후프 10개'] },
-  37: { category: 'barebody', name: '맨몸', secondary: [], materials: ['동물 동작 카드'] },
-  38: { category: 'other', name: '낙하산(파라슈트)', secondary: ['음악'], materials: ['유아용 12인 파라슈트'] },
-  39: { category: 'barebody', name: '맨몸 (점프)', secondary: ['마커'], materials: ['발자국 바닥 스티커'] },
-  40: { category: 'other', name: '콩주머니', secondary: ['라인 테이프'], materials: ['컬러 콩주머니 20개'] },
-  41: { category: 'barebody', name: '맨몸', secondary: [], materials: ['바닥 라인 테이프'] },
-  42: { category: 'ball', name: '볼링공 (볼링핀)', secondary: ['볼링핀'], materials: ['플라스틱 볼링핀 10개', '미니 볼링공 2개'] },
-  43: { category: 'balloon', name: '풍선', secondary: ['간이 네트'], materials: ['풍선 10개', '체육실 간이 네트'] },
-  44: { category: 'rope', name: '사다리 (스피드 래더)', secondary: [], materials: ['바닥 민첩성 스텝 사다리'] },
-  45: { category: 'other', name: '플라잉디스크', secondary: ['타깃 바구니'], materials: ['소프트 EVA 원반', '원형 타깃'] },
-  46: { category: 'barebody', name: '맨몸 (짝운동)', secondary: ['매트'], materials: ['2인 안전 매트'] },
-  47: { category: 'stick', name: '스틱 막대기', secondary: [], materials: ['스펀지 체육 스틱 20개'] },
-  48: { category: 'barebody', name: '맨몸', secondary: ['호루라기'], materials: ['안전 호루라기'] },
-  49: { category: 'rope', name: '고무줄 (탄성 밴드)', secondary: ['지지대'], materials: ['유아용 소프트 탄성 밴드'] },
-  50: { category: 'barebody', name: '맨몸 (태권도)', secondary: ['미트'], materials: ['타격 핸드 미트'] },
-  51: { category: 'ball', name: '스쿠프 & 볼', secondary: ['스쿠프'], materials: ['스쿠프 라켓 4쌍', '구멍 뚫린 플라스틱 공'] },
-  52: { category: 'barebody', name: '맨몸', secondary: ['체조 매트'], materials: ['개인용 체조 매트'] },
-  53: { category: 'other', name: '색깔 매트', secondary: ['신호 깃발'], materials: ['4색 스펀지 조각 매트'] },
-  54: { category: 'barebody', name: '맨몸 (댄스)', secondary: ['신나는 음악'], materials: ['리듬 체육 음원'] },
-  55: { category: 'stick', name: '라켓 (셔틀콕)', secondary: ['셔틀콕'], materials: ['빅 라켓 4개', '대형 셔틀콕'] },
-  56: { category: 'barebody', name: '맨몸', secondary: ['라인 테이프'], materials: ['지그재그 바닥 가이드'] },
-  57: { category: 'other', name: '점보 컵 (스피드스택스)', secondary: [], materials: ['대형 스피드스택스 컵 세트'] },
-  58: { category: 'other', name: '철봉 (늑목/사다리)', secondary: ['안전 매트'], materials: ['유아용 실내 철봉대', '도톰한 낙하 방지 매트'] },
-  59: { category: 'ball', name: '패러슈트 & 볼', secondary: ['패러슈트'], materials: ['파라슈트 1개', '볼풀공 100개'] },
-  60: { category: 'barebody', name: '맨몸', secondary: ['동서남북 마커'], materials: ['방향 지시 화살표 카드'] },
-
-  // === 3단계 (만 5세) ===
-  61: { category: 'barebody', name: '맨몸 (벽 지지)', secondary: ['클라이밍 벽/매트'], materials: ['벽면 지지대', '안전 완충 매트'] },
-  62: { category: 'stick', name: '하키 스틱', secondary: ['미니 골대', '퍽/볼'], materials: ['소프트 플라스틱 하키 스틱 6개', '안전 볼', '미니 골대'] },
-  63: { category: 'stick', name: '이어달리기 바통', secondary: ['고깔'], materials: ['소프트 컬러 바통 4개'] },
-  64: { category: 'rope', name: '줄넘기', secondary: [], materials: ['길이 조절용 유아 줄넘기'] },
-  65: { category: 'barebody', name: '맨몸 (협동 체조)', secondary: ['매트'], materials: ['다인용 대형 매트'] },
-  66: { category: 'ball', name: '킨볼 (대형 볼)', secondary: [], materials: ['지름 84cm 킨볼 공'] },
-  67: { category: 'barebody', name: '맨몸 (셔틀런)', secondary: ['마커 콘'], materials: ['반환점 콘', '음원'] },
-  68: { category: 'ball', name: '보치아 공', secondary: ['표적구'], materials: ['유아용 소프트 보치아 공 세트'] },
-  69: { category: 'barebody', name: '맨몸 (앞구르기)', secondary: ['경사 매트'], materials: ['삼각 경사 매트', '체조 보조 쿠션'] },
-  70: { category: 'stick', name: '티볼 배트', secondary: ['배팅 티', '안전구'], materials: ['우레탄 배트', '배팅 티대', '스펀지 야구공'] },
-  71: { category: 'barebody', name: '맨몸 (포복)', secondary: ['장애물 네트'], materials: ['낮은 그물 네트', '바닥 매트'] },
-  72: { category: 'stick', name: '플로어볼 스틱', secondary: ['플로어볼', '콘'], materials: ['플로어볼 스틱 6개', '구멍볼 4개'] },
-  73: { category: 'barebody', name: '맨몸 (짝체조)', secondary: ['안전 매트'], materials: ['체조 매트 4장'] },
-  74: { category: 'other', name: '뜀틀', secondary: ['발판', '착지 매트'], materials: ['소프트 4단 뜀틀', '구름판', '착지 안전 매트'] },
-  75: { category: 'other', name: '씨름 샅바', secondary: ['원형 매트'], materials: ['유아용 컬러 샅바', '원형 씨름 매트'] },
-  76: { category: 'stick', name: '배드민턴 라켓', secondary: ['빅 셔틀콕', '간이 네트'], materials: ['숏 배드민턴 라켓 4개', '점보 셔틀콕'] },
-  77: { category: 'barebody', name: '맨몸', secondary: [], materials: ['암호 동작 카드'] },
-  78: { category: 'other', name: '스텝박스', secondary: ['신나는 음악'], materials: ['높이 조절 에어로빅 스텝박스'] },
-  79: { category: 'barebody', name: '맨몸', secondary: ['매트'], materials: ['팔굽혀펴기 유아 지지 매트'] },
-  80: { category: 'other', name: '인디아카', secondary: ['네트'], materials: ['깃털 인디아카 공 4개'] },
-  81: { category: 'other', name: '슬라이드 보드(스케이트)', secondary: ['덧신'], materials: ['미끄럼 시트', '부직포 덧신'] },
-  82: { category: 'ball', name: '농구공', secondary: ['미니 농구 골대'], materials: ['유아용 3호 농구공', '이동식 미니 골대'] },
-  83: { category: 'barebody', name: '맨몸', secondary: [], materials: ['출발선 및 결승선 테이프'] },
-  84: { category: 'other', name: '밸런스 보드', secondary: ['매트'], materials: ['목재 또는 플라스틱 워블 보드'] },
-  85: { category: 'barebody', name: '맨몸 (기차놀이)', secondary: ['꼬리 띠'], materials: ['팀별 색깔 조끼'] },
-  86: { category: 'ball', name: '츄크볼 (리바운더)', secondary: ['반사 네트', '핸드볼'], materials: ['기울기 조절 네트', '소프트 핸드볼'] },
-  87: { category: 'rope', name: '발목 묶기 끈 (3인4각)', secondary: ['고깔'], materials: ['벨크로 다리 밴드 6쌍'] },
-  88: { category: 'other', name: '플라잉디스크', secondary: ['팀 조끼'], materials: ['얼티미트 규격 소프트 원반'] },
-  89: { category: 'barebody', name: '맨몸', secondary: ['팀 깃발'], materials: ['선장 모자', '팀 깃발'] },
-  90: { category: 'ball', name: '빅볼 (대형 짐볼)', secondary: ['결승점 콘'], materials: ['지름 65cm 짐볼 4개'] }
-};
-
-// 원본 PDF의 단계별 활동 순서에 따른 7개 운동도구 분류
-const getCategoryByActivityId = (
-  activityId: number
-): EquipmentCategory => {
-  const stepNumber = ((activityId - 1) % 30) + 1;
-
-  if (stepNumber <= 5) return 'ball';
-  if (stepNumber <= 10) return 'hoop';
-  if (stepNumber <= 15) return 'rope';
-  if (stepNumber <= 20) return 'balanceBeam';
-  if (stepNumber <= 23) return 'mat';
-  if (stepNumber <= 25) return 'vaultingBox';
-
-  return 'creative';
-};
-
-
-export const getEquipmentRule = (
-  activityId: number
-): EquipmentMappingRule & { category: EquipmentCategory } => {
-  const stepNumber = ((activityId - 1) % 30) + 1;
-
-  let category: EquipmentCategory;
-
-  if (stepNumber <= 5) {
-    category = 'ball';
-  } else if (stepNumber <= 10) {
-    category = 'hoop';
-  } else if (stepNumber <= 15) {
-    category = 'rope';
-  } else if (stepNumber <= 20) {
-    category = 'balanceBeam';
-  } else if (stepNumber <= 23) {
-    category = 'mat';
-  } else if (stepNumber <= 25) {
-    category = 'vaultingBox';
-  } else {
-    category = 'creative';
-  }
-
-  const rule = ACTIVITY_EQUIPMENT_RULES[activityId];
-
-  return {
-    ...(rule || {
-      name: '창의적인 운동도구',
-      secondary: [],
-      materials: []
-    }),
-    category
-  };
+  1: { category: 'ball', name: "공", secondary: [], materials: ["다양한 공(고무 공, 스펀지 공, 소프트볼, 비치볼 등) 유아 수만큼"] }, // 1단계 1차시: 공 탐색하기
+  2: { category: 'ball', name: "공", secondary: [], materials: ["소프트볼 유아 수만큼, 마스킹 테이프"] }, // 1단계 2차시: 공 던지기
+  3: { category: 'ball', name: "공", secondary: [], materials: ["다양한 색의 풍선과 공 여러 개"] }, // 1단계 3차시: 공 차기
+  4: { category: 'creative', name: "백업", secondary: [], materials: ["1m 길이 백업(지름 5cm) 유아 수만큼, 다양한 공"] }, // 1단계 4차시: 백업으로 공 치기
+  5: { category: 'ball', name: "공", secondary: [], materials: ["소프트볼 유아 수만큼"] }, // 1단계 5차시: 둘이서 공 굴리기
+  6: { category: 'hoop', name: "후프", secondary: [], materials: ["후프 유아 수만큼"] }, // 1단계 6차시: 후프 탐색하기
+  7: { category: 'hoop', name: "후프", secondary: [], materials: ["후프 유아 수만큼, 색테이프"] }, // 1단계 7차시: 후프에서 걷기와 뛰기
+  8: { category: 'hoop', name: "후프", secondary: [], materials: ["후프 유아 수만큼"] }, // 1단계 8차시: 후프 통과하기
+  9: { category: 'hoop', name: "후프", secondary: [], materials: ["후프 5~10개, 5개 이어붙인 후프"] }, // 1단계 9차시: 후프 터널 통과하기
+  10: { category: 'hoop', name: "후프", secondary: [], materials: ["후프 유아 수만큼"] }, // 1단계 10차시: 후프 자동차 놀이
+  11: { category: 'rope', name: "줄", secondary: [], materials: ["줄 유아 수만큼"] }, // 1단계 11차시: 줄 탐색하기
+  12: { category: 'rope', name: "줄", secondary: [], materials: ["긴 줄 여러 개"] }, // 1단계 12차시: 줄 위 걷기
+  13: { category: 'rope', name: "줄", secondary: [], materials: ["빠져나갈 수 있는 가구나 도구, 긴 줄 여러 개"] }, // 1단계 13차시: 줄 지나가기
+  14: { category: 'rope', name: "줄", secondary: [], materials: ["줄 유아 수만큼"] }, // 1단계 14차시: 줄로 다양한 공간 만들어 움직이기
+  15: { category: 'rope', name: "줄", secondary: [], materials: ["긴 줄 여러 개"] }, // 1단계 15차시: 연속된 줄 지나가기
+  16: { category: 'balanceBeam', name: "평균대", secondary: [], materials: ["평균대, 매트"] }, // 1단계 16차시: 평균대 탐색하기
+  17: { category: 'balanceBeam', name: "평균대", secondary: [], materials: ["평균대"] }, // 1단계 17차시: 평균대 위, 아래 지나가기
+  18: { category: 'balanceBeam', name: "평균대", secondary: [], materials: ["평균대, 매트"] }, // 1단계 18차시: 평균대에서 기어가기
+  19: { category: 'balanceBeam', name: "평균대", secondary: [], materials: ["좋아하는 캐릭터나 그림, 평균대"] }, // 1단계 19차시: 평균대에서 지탱하기
+  20: { category: 'balanceBeam', name: "평균대", secondary: [], materials: ["평균대, 매트, 여러가지 물건"] }, // 1단계 20차시: 평균대에서 물건 잡기
+  21: { category: 'mat', name: "매트", secondary: [], materials: ["매트 여러 장"] }, // 1단계 21차시: 매트 탐색하기
+  22: { category: 'mat', name: "매트", secondary: [], materials: ["매트 여러 장"] }, // 1단계 22차시: 매트 위에서 점프하기
+  23: { category: 'mat', name: "매트", secondary: [], materials: ["매트 여러 장"] }, // 1단계 23차시: 매트에서 옆으로 구르기
+  24: { category: 'vaultingBox', name: "뜀틀", secondary: [], materials: ["뜀뜰(1단, 2단), 매트"] }, // 1단계 24차시: 뜀틀 탐색하기
+  25: { category: 'vaultingBox', name: "뜀틀", secondary: [], materials: ["뜀틀(1단, 2단), 풍선, 매트"] }, // 1단계 25차시: 뜀틀 위에 기어오르고 뛰어내리기
+  26: { category: 'creative', name: "또아리", secondary: [], materials: ["또아리, 콩주머니 여러 개"] }, // 1단계 26차시: 또아리를 얹고 균형잡기
+  27: { category: 'creative', name: "기린 그림", secondary: [], materials: ["기린 그림, 나뭇잎 여러 개"] }, // 1단계 27차시: 기린 먹이 주기
+  28: { category: 'creative', name: "감각 쿠션", secondary: [], materials: ["마스킹 테이프, 쟁반, 공, 인형, 블록, 종이컵, 감각 쿠션"] }, // 1단계 28차시: 감각 쿠션 건너가기
+  29: { category: 'creative', name: "스카프·별똥별", secondary: [], materials: ["스카프 유아 수만큼, 별똥별 여러 개, 목표물"] }, // 1단계 29차시: 별똥별 날리기
+  30: { category: 'creative', name: "동물 카드", secondary: [], materials: ["동물카드 8장"] }, // 1단계 30차시: 동물처럼 움직이기
+  31: { category: 'ball', name: "공", secondary: [], materials: ["공 유아 수만큼"] }, // 2단계 1차시: 공 튀기기
+  32: { category: 'ball', name: "공", secondary: [], materials: ["공 유아 수만큼, 바구니(상자)"] }, // 2단계 2차시: 공 던지고 받기
+  33: { category: 'ball', name: "공", secondary: [], materials: ["공 유아 수만큼, 후프, 고정대"] }, // 2단계 3차시: 목적물에 공 던지기
+  34: { category: 'creative', name: "하키채", secondary: [], materials: ["하키채 모양 스틱 여러 개, 공 여러 개, 마스킹 테이프"] }, // 2단계 4차시: 하키채로 공 치기
+  35: { category: 'ball', name: "공", secondary: [], materials: ["공 여러 개"] }, // 2단계 5차시: 공 전달하기
+  36: { category: 'hoop', name: "후프", secondary: [], materials: ["후프 유아 수만큼"] }, // 2단계 6차시: 후프 점프하기
+  37: { category: 'hoop', name: "후프", secondary: [], materials: ["블록, 후프 여러 개, 고정대"] }, // 2단계 7차시: 후프 빠져나가기
+  38: { category: 'hoop', name: "후프", secondary: [], materials: ["후프, 블록 여러 개"] }, // 2단계 8차시: 후프 징검다리
+  39: { category: 'hoop', name: "후프", secondary: [], materials: ["후프 유아 수만큼, 반환점"] }, // 2단계 9차시: 후프 굴리기
+  40: { category: 'hoop', name: "후프", secondary: [], materials: ["작은 후프 여러 개"] }, // 2단계 10차시: 후프 사방치기
+  41: { category: 'rope', name: "줄", secondary: [], materials: ["블록, 줄 여러 개"] }, // 2단계 11차시: 줄 잡고 스트레칭하기
+  42: { category: 'rope', name: "줄", secondary: [], materials: ["긴 줄 여러 개"] }, // 2단계 12차시: 줄로 만든 길 걷기
+  43: { category: 'rope', name: "줄", secondary: [], materials: ["긴 줄 여러 개"] }, // 2단계 13차시: 두 줄 뛰어넘기
+  44: { category: 'rope', name: "줄", secondary: [], materials: ["줄 유아 수만큼"] }, // 2단계 14차시: 줄로 모양 만들기
+  45: { category: 'rope', name: "줄", secondary: [], materials: ["긴 줄 여러 개"] }, // 2단계 15차시: 방사선 줄 뛰어넘기
+  46: { category: 'balanceBeam', name: "평균대", secondary: [], materials: ["평균대, 매트, 유아가 좋아하는 물건"] }, // 2단계 16차시: 평균대에서 앉아서 걷기
+  47: { category: 'balanceBeam', name: "평균대", secondary: [], materials: ["큰 천, 매트, 평균대"] }, // 2단계 17차시: 평균대에서 걷기
+  48: { category: 'balanceBeam', name: "평균대", secondary: [], materials: ["높이가 다른 평균대, 매트"] }, // 2단계 18차시: 평균대 구르고 뛰어넘기
+  49: { category: 'balanceBeam', name: "평균대", secondary: [], materials: ["평균대, 매트, 후프 여러 개"] }, // 2단계 19차시: 평균대 짚고 높이뛰기
+  50: { category: 'balanceBeam', name: "평균대", secondary: [], materials: ["블록, 평균대, 매트, 장애물"] }, // 2단계 20차시: 평균대 장애물 건너기
+  51: { category: 'mat', name: "매트", secondary: [], materials: ["매트 여러 장"] }, // 2단계 21차시: 매트에 신체 대기
+  52: { category: 'mat', name: "매트", secondary: [], materials: ["매트 여러 장"] }, // 2단계 22차시: 매트 배 타기
+  53: { category: 'mat', name: "매트", secondary: [], materials: ["매트 여러 장"] }, // 2단계 23차시: 매트에서 앞구르기
+  54: { category: 'vaultingBox', name: "뜀틀", secondary: [], materials: ["뜀틀(1단, 2단), 매트"] }, // 2단계 24차시: 뜀틀 위에서 한 발 들고 서기
+  55: { category: 'vaultingBox', name: "뜀틀", secondary: [], materials: ["뜀틀(1~3단), 매트, 손바닥 스티커"] }, // 2단계 25차시: 뜀틀 비껴넘기
+  56: { category: 'creative', name: "그물망", secondary: [], materials: ["그물망, 가볍고 부드러운 공, 반환점, 바구니"] }, // 2단계 26차시: 그물망으로 공 치기
+  57: { category: 'ball', name: "공", secondary: [], materials: ["긴꼬리공, 목표물"] }, // 2단계 27차시: 긴꼬리공 던지고 받기
+  58: { category: 'creative', name: "발 바꾸어 뛰기 도구", secondary: [], materials: ["신문지 막대 여러 개, 블록, 발바꾸어 뛰기 운동 도구, 패턴 카드"] }, // 2단계 28차시: 발 바꾸어 뛰기
+  59: { category: 'creative', name: "링", secondary: [], materials: ["링, 가벼운 물건(곡식주머니, 양모 공, 리본 공, 종이비행기 등)"] }, // 2단계 29차시: 링 통과하기
+  60: { category: 'creative', name: "둘이서 선 따라 걷기", secondary: [], materials: ["담요, 백업, 선 따라 걷기 매트"] }, // 2단계 30차시: 둘이서 선 따라 걷기
+  61: { category: 'ball', name: "공", secondary: [], materials: ["공 유아 수만큼"] }, // 3단계 1차시: 몸으로 공 굴리기
+  62: { category: 'ball', name: "공", secondary: [], materials: ["공 유아 수만큼, 작은 물건, 바구니"] }, // 3단계 2차시: 발로 공 전달하기
+  63: { category: 'ball', name: "공", secondary: [], materials: ["공 여러 개, 마스킹 테이프"] }, // 3단계 3차시: 발목에 공 끼고 선 뛰어넘기
+  64: { category: 'ball', name: "공", secondary: [], materials: ["공 유아 수만큼"] }, // 3단계 4차시: 연속하여 공 튀기기
+  65: { category: 'creative', name: "피구놀이", secondary: [], materials: ["공"] }, // 3단계 5차시: 피구놀이
+  66: { category: 'hoop', name: "후프", secondary: [], materials: ["후프 유아 수만큼"] }, // 3단계 6차시: 후프 밀고 당기기
+  67: { category: 'hoop', name: "후프", secondary: [], materials: ["후프 여러 개, 마스킹 테이프"] }, // 3단계 7차시: 지그재그 후프 건너뛰기
+  68: { category: 'hoop', name: "후프", secondary: [], materials: ["후프 유아 수만큼"] }, // 3단계 8차시: 후프로 스트레칭하기
+  69: { category: 'hoop', name: "후프", secondary: [], materials: ["후프 유아 수만큼"] }, // 3단계 9차시: 몸으로 후프 돌리기
+  70: { category: 'hoop', name: "후프", secondary: [], materials: ["후프 유아 수만큼"] }, // 3단계 10차시: 후프 줄넘기
+  71: { category: 'rope', name: "줄", secondary: [], materials: ["줄 유아 수만큼"] }, // 3단계 11차시: 줄 사이로 다니기
+  72: { category: 'rope', name: "줄", secondary: [], materials: ["미끄럽지 않은 재질의 종이, 긴 줄 여러 개"] }, // 3단계 12차시: 줄 위로, 아래로 지나다니기
+  73: { category: 'rope', name: "줄", secondary: [], materials: ["긴 줄"] }, // 3단계 13차시: 줄 통과하기
+  74: { category: 'rope', name: "줄", secondary: [], materials: ["줄 넘기 줄 유아수 만큼"] }, // 3단계 14차시: 줄넘기
+  75: { category: 'rope', name: "줄", secondary: [], materials: ["긴 줄"] }, // 3단계 15차시: 긴 줄넘기
+  76: { category: 'balanceBeam', name: "평균대", secondary: [], materials: ["평균대, 매트"] }, // 3단계 16차시: 평균대 위에서 엇갈려 걷기
+  77: { category: 'balanceBeam', name: "평균대", secondary: [], materials: ["평균대, 매트"] }, // 3단계 17차시: 평균대에서 점프하기
+  78: { category: 'balanceBeam', name: "평균대", secondary: [], materials: ["평균대, 매트, 후프, 고정대"] }, // 3단계 18차시: 평균대 위에서 후프 통과하기
+  79: { category: 'balanceBeam', name: "평균대", secondary: [], materials: ["평균대, 매트"] }, // 3단계 19차시: 평균대 뛰어넘기
+  80: { category: 'balanceBeam', name: "평균대", secondary: [], materials: ["평균대, 매트, 공"] }, // 3단계 20차시: 평균대에서 공놀이하기
+  81: { category: 'mat', name: "매트", secondary: [], materials: ["매트 여러 장, 말아서 끈으로 묶은 매트 1장"] }, // 3단계 21차시: 원통형 매트 위 지나가기
+  82: { category: 'mat', name: "매트", secondary: [], materials: ["매트 여러 장"] }, // 3단계 22차시: 매트에서 구르기
+  83: { category: 'vaultingBox', name: "뜀틀", secondary: [], materials: ["블록 여러 개, 뜀틀(1단, 2단), 매트"] }, // 3단계 23차시: 뜀틀 뛰어넘기
+  84: { category: 'vaultingBox', name: "뜀틀", secondary: [], materials: ["뜀틀, 매트"] }, // 3단계 24차시: 뜀틀 위에서 구르기
+  85: { category: 'vaultingBox', name: "뜀틀", secondary: [], materials: ["콘 여러 개, 뜀틀(1단), 매트"] }, // 3단계 25차시: 뜀틀 뛰어넘어 구르기
+  86: { category: 'ball', name: "공", secondary: [], materials: ["헝겊 축구판, 공, 반환점"] }, // 3단계 26차시: 구멍에 공 넣기
+  87: { category: 'creative', name: "막대", secondary: [], materials: ["막대 여러 개"] }, // 3단계 27차시: 막대 균형잡기
+  88: { category: 'creative', name: "발바닥 그림판", secondary: [], materials: ["발바닥 그림판"] }, // 3단계 28차시: 발바닥 그림 보고 뛰기
+  89: { category: 'creative', name: "날개 부채", secondary: [], materials: ["자음카드, 날개 부채 여러 개, 가벼운 물체"] }, // 3단계 29차시: 날개 부채 흔들기
+  90: { category: 'creative', name: "막대", secondary: [], materials: ["신문지 막대, 공, 바퀴 달린 막대 여러 개"] }, // 3단계 30차시: 바퀴 달린 막대 굴리기
 };
