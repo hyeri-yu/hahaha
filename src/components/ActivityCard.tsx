@@ -16,7 +16,6 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
   activity,
   isCompleted,
   hasNote,
-  isTeacherLoggedIn,
   onSelect,
   onToggleComplete
 }) => {
@@ -33,7 +32,6 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
       }`}
     >
       <div>
-        {/* 활동 번호 및 도구 분류 */}
         <div className="flex items-center justify-between gap-2 mb-2.5">
           <span className="text-xs font-semibold text-[#0284C7] bg-[#E8F6FE] px-2 py-0.5 rounded">
             {activity.step}단계 {String(activity.stepNumber).padStart(2, '0')}번
@@ -51,7 +49,6 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
           </span>
         </div>
 
-        {/* 활동 제목 */}
         <div className="mb-2 space-y-1">
           <p className="text-xs text-slate-500 font-medium line-clamp-1">
             {(activity as ActivityItem & { bodyActivityTitle?: string }).bodyActivityTitle || ''}
@@ -62,7 +59,6 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
         </div>
       </div>
 
-      {/* 자세히 보기 및 교사 기록 */}
       <div className="pt-3 border-t border-slate-100 flex items-center justify-between mt-2">
         <div className="flex items-center gap-2">
           <span className="text-xs font-medium text-slate-500 group-hover:text-[#0284C7] transition-colors inline-flex items-center gap-0.5">
@@ -77,23 +73,22 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
           )}
         </div>
 
-        {isTeacherLoggedIn && (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleComplete(e, activity.id);
-            }}
-            className={`w-6 h-6 rounded-md flex items-center justify-center transition-colors cursor-pointer ${
-              isCompleted
-                ? 'bg-emerald-500 text-white'
-                : 'border border-slate-200 text-slate-300 hover:border-slate-400 hover:text-slate-500'
-            }`}
-            title={isCompleted ? '완료 취소' : '수업 완료 체크'}
-          >
-            <Check className="w-3.5 h-3.5" />
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleComplete(e, activity.id);
+          }}
+          className={`w-7 h-7 rounded-md flex items-center justify-center transition-colors cursor-pointer ${
+            isCompleted
+              ? 'bg-emerald-500 text-white'
+              : 'border border-slate-300 text-slate-300 hover:border-emerald-400 hover:text-emerald-500'
+          }`}
+          title={isCompleted ? '완료 취소' : '활동 완료 체크'}
+          aria-label={isCompleted ? '완료 취소' : '활동 완료 체크'}
+        >
+          <Check className="w-4 h-4" />
+        </button>
       </div>
     </div>
   );
