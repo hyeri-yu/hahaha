@@ -55,10 +55,16 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
           </div>
         </div>
 
-        {/* Title */}
-        <h3 className="text-sm sm:text-base font-semibold text-slate-900 group-hover:text-[#0284C7] transition-colors line-clamp-1 mb-2">
-          {activity.title}
-        </h3>
+{/* Title: 본제목 + 부제목 */}
+<div className="mb-2 space-y-1">
+  <p className="text-xs text-slate-500 font-medium line-clamp-1">
+    {(activity as ActivityItem & { bodyActivityTitle?: string }).bodyActivityTitle || ''}
+  </p>
+  <h3 className="text-sm sm:text-base font-bold text-slate-900 group-hover:text-[#0284C7] transition-colors line-clamp-2">
+    {activity.title}
+  </h3>
+</div>
+    
       </div>
 
       {/* Bottom: Action & Teacher Status */}
