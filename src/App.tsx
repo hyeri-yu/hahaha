@@ -252,7 +252,7 @@ export default function App() {
           </h1>
 
           <p className="text-xs sm:text-sm text-slate-600 mb-1">
-            매일 하나씩, 아이들과 신나게 움직이는 유아 체육놀이
+            매일 하나씩, 아이들과 신나게 움직이는 유아 놀이 체육
           </p>
 
           <p className="text-[11px] sm:text-xs text-slate-400 leading-relaxed">
