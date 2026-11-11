@@ -231,14 +231,27 @@ const categoryCounts = useMemo(() => {
       {/* 2. Main Content */}
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Short & Clean Introduction */}
-        <div className="mb-6">
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-1">
-            유아 체육놀이 교육 자료실
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500">
-            만 3세·4세·5세 발달 단계에 맞춘 90가지 표준 신체활동 지도안 (도구별 8개 그룹 분류 및 영상 연계)
-          </p>
-        </div>
+        
+<div className="mb-7">
+  <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">
+    <span className="text-[#F28B9B]">하루에 </span>
+    <span className="text-[#F5A623]">하나씩 </span>
+    <span className="text-[#65B88A]">하는 </span>
+    <span className="text-[#38A9E8]">하하하 </span>
+    <span className="text-[#A58AD4]">놀이 </span>
+    <span className="text-[#F28B5B]">체육!</span>
+  </h1>
+
+  <p className="text-xs sm:text-sm text-slate-600 mb-1">
+    매일 하나씩, 아이들과 신나게 움직이는 유아 체육놀이
+  </p>
+
+  <p className="text-[11px] sm:text-xs text-slate-400 leading-relaxed">
+    자료 출처: 「다 함께 운동놀이」 원본 자료를 바탕으로
+    유아교육기관 교사들이 수업에 활용하기 쉽도록 구성한 교육 자료 사이트입니다.
+  </p>
+</div>
+
 
         {/* 4. Stage Navigation & Equipment Category Filter Controls */}
         <StageNav
