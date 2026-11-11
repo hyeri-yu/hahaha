@@ -1,130 +1,106 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { ActivityItem, EquipmentCategory, TeacherUser, TeacherRecord } from './types';
+import React, { useState, useMemo } from 'react';
+import { ActivityItem, EquipmentCategory, TeacherRecord } from './types';
 import { storageService } from './services/storage';
 import { Header } from './components/Header';
 import { StageNav } from './components/StageNav';
 import { ActivityCard } from './components/ActivityCard';
 import { ActivityDetailModal } from './components/ActivityDetailModal';
-import { TeacherAuthModal } from './components/TeacherAuthModal';
 import { JsonDataManagerModal } from './components/JsonDataManagerModal';
 import { PdfManagerModal } from './components/PdfManagerModal';
 import { VideoManagerModal } from './components/VideoManagerModal';
 
-export default function App() {
-  // 1. 기본 데이터 및 교사 정보
-  const [activities, setActivities] = useState<ActivityItem[]>(() => storageService.getActivities());
-  const [currentTeacher, setCurrentTeacher] = useState<TeacherUser | null>(() => storageService.getCurrentTeacher());
+const createEmptyRecord = (): TeacherRecord => ({
+  completedActivityIds: [],
+  notes: {},
+  lastUpdated: new Date().toISOString()
+});
 
-  const [teacherRecord, setTeacherRecord] = useState<TeacherRecord>({
-    completedActivityIds: [],
-    notes: {},
-    lastUpdated: ''
-  });
+export default function App() {
+  // 1. 기본 데이터 및 로컬 활동 기록
+  const [activities, setActivities] = useState<ActivityItem[]>(
+    () => storageService.getActivities()
+  );
+
+  const [teacherRecord, setTeacherRecord] = useState<TeacherRecord>(
+    () => storageService.getLocalRecord()
+  );
 
   // 2. 검색 및 필터 상태
   const [currentStep, setCurrentStep] = useState<number>(0);
-  const [selectedCategory, setSelectedCategory] = useState<'all' | EquipmentCategory>('all');
+  const [selectedCategory, setSelectedCategory] =
+    useState<'all' | EquipmentCategory>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [showOnlyCompleted, setShowOnlyCompleted] = useState(false);
 
   // 3. 모달 상태
-  const [selectedActivity, setSelectedActivity] = useState<ActivityItem | null>(null);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [selectedActivity, setSelectedActivity] =
+    useState<ActivityItem | null>(null);
   const [isJsonManagerOpen, setIsJsonManagerOpen] = useState(false);
   const [isPdfManagerOpen, setIsPdfManagerOpen] = useState(false);
   const [isVideoManagerOpen, setIsVideoManagerOpen] = useState(false);
 
-  // 4. 교사 기록 동기화
-  useEffect(() => {
-    if (currentTeacher) {
-      const record = storageService.getTeacherRecord(currentTeacher.id);
-      setTeacherRecord(record);
-    } else {
-      setTeacherRecord({
-        completedActivityIds: [],
-        notes: {},
-        lastUpdated: ''
-      });
-      setShowOnlyCompleted(false);
-    }
-  }, [currentTeacher]);
-
-  // 5. 교사 로그인
-  const handleLogin = (user: TeacherUser) => {
-    storageService.setCurrentTeacher(user);
-    setCurrentTeacher(user);
+  // 4. 로컬 기록 새로고침
+  const refreshLocalRecord = () => {
+    setTeacherRecord(storageService.getLocalRecord());
   };
 
-  // 6. 교사 로그아웃
-  const handleLogout = () => {
-    storageService.setCurrentTeacher(null);
-    setCurrentTeacher(null);
-  };
-
-  // 7. 활동 완료 체크
+  // 5. 활동 완료 체크 및 취소
   const handleToggleComplete = (activityId: number) => {
-    if (!currentTeacher) {
-      setIsAuthModalOpen(true);
-      return;
-    }
-
-    storageService.toggleComplete(currentTeacher.id, activityId);
-    setTeacherRecord(storageService.getTeacherRecord(currentTeacher.id));
+    storageService.toggleLocalComplete(activityId);
+    refreshLocalRecord();
   };
 
-  // 8. 교사 수업 메모 저장
+  // 6. 활동 메모 저장
   const handleSaveNote = (activityId: number, note: string) => {
-    if (!currentTeacher) {
-      setIsAuthModalOpen(true);
-      return;
-    }
-
-    storageService.saveNote(currentTeacher.id, activityId, note);
-    setTeacherRecord(storageService.getTeacherRecord(currentTeacher.id));
+    storageService.saveLocalNote(activityId, note);
+    refreshLocalRecord();
   };
 
-  // 9. 활동 데이터 업데이트
+  // 7. 활동 데이터 업데이트
   const handleActivitiesUpdated = (newActivities: ActivityItem[]) => {
     setActivities(newActivities);
 
     if (selectedActivity) {
-      const refreshed = newActivities.find(a => a.id === selectedActivity.id) || null;
+      const refreshed =
+        newActivities.find(a => a.id === selectedActivity.id) || null;
       setSelectedActivity(refreshed);
     }
   };
 
-  // 10. 활동 완료 여부 확인
+  // 8. 활동 완료 여부 확인
   const isActivityCompleted = (id: number) => {
     return teacherRecord.completedActivityIds.includes(id);
   };
 
-  // 11. 교사 메모 여부 확인
+  // 9. 활동 메모 여부 확인
   const hasActivityNote = (id: number) => {
-    return Boolean(teacherRecord.notes[id] && teacherRecord.notes[id].trim());
+    return Boolean(
+      teacherRecord.notes[id] && teacherRecord.notes[id].trim()
+    );
   };
 
-  // 12. 활동 목록 필터링
+  // 10. 활동 목록 필터링
   const filteredActivities = useMemo(() => {
     return activities.filter((activity) => {
-      // 연령 단계 필터
       if (currentStep !== 0 && activity.step !== currentStep) {
         return false;
       }
 
-      // 도구 분류 필터
-      if (selectedCategory !== 'all') {
-        if (activity.equipmentCategory !== selectedCategory) {
-          return false;
-        }
-      }
-
-      // 교사 완료 활동 필터
-      if (showOnlyCompleted && currentTeacher && !isActivityCompleted(activity.id)) {
+      if (
+        selectedCategory !== 'all' &&
+        activity.equipmentCategory !== selectedCategory
+      ) {
         return false;
       }
 
-      // 검색 필터
+      if (
+        showOnlyCompleted &&
+        !teacherRecord.completedActivityIds.includes(activity.id)
+      ) {
+        return false;
+      }
+
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase().trim();
 
@@ -138,14 +114,20 @@ export default function App() {
 
         const matchesTool =
           activity.equipmentName?.toLowerCase().includes(query) ||
-          activity.secondaryEquipments?.some((s) => s.toLowerCase().includes(query));
+          activity.secondaryEquipments?.some((s) =>
+            s.toLowerCase().includes(query)
+          );
 
         const matchesGoal =
           activity.goal?.toLowerCase().includes(query) ||
-          activity.objectives?.some((obj) => obj.toLowerCase().includes(query));
+          activity.objectives?.some((obj) =>
+            obj.toLowerCase().includes(query)
+          );
 
         const matchesMaterials =
-          activity.materials?.some((m) => m.toLowerCase().includes(query));
+          activity.materials?.some((m) =>
+            m.toLowerCase().includes(query)
+          );
 
         if (
           !matchesTitle &&
@@ -166,11 +148,10 @@ export default function App() {
     selectedCategory,
     showOnlyCompleted,
     searchQuery,
-    currentTeacher,
     teacherRecord
   ]);
 
-  // 13. 단계별 활동 개수
+  // 11. 단계별 활동 개수
   const stepCounts = useMemo(() => {
     return {
       total: activities.length,
@@ -180,7 +161,7 @@ export default function App() {
     };
   }, [activities]);
 
-  // 14. 도구별 활동 개수
+  // 12. 도구별 활동 개수
   const categoryCounts = useMemo(() => {
     const targetPool = currentStep === 0
       ? activities
@@ -197,10 +178,13 @@ export default function App() {
     };
   }, [activities, currentStep]);
 
-  // 15. 상세보기 모달 내 활동 이동
+  // 13. 상세보기 모달 내 활동 이동
   const currentModalIndex = useMemo(() => {
     if (!selectedActivity) return -1;
-    return activities.findIndex(a => a.id === selectedActivity.id);
+
+    return activities.findIndex(
+      a => a.id === selectedActivity.id
+    );
   }, [activities, selectedActivity]);
 
   const handleModalPrev = () => {
@@ -215,17 +199,16 @@ export default function App() {
     }
   };
 
-  // 16. 교사 기록 통계
+  // 14. 활동 기록 통계
   const completedCount = teacherRecord.completedActivityIds.length;
-  const notesCount = Object.keys(teacherRecord.notes).length;
 
   return (
     <div className="min-h-screen bg-[#FFFDF8] text-[#34495E] flex flex-col font-sans">
 
       {/* 상단 헤더 */}
       <Header
-        currentTeacher={currentTeacher}
-        onOpenAuth={() => setIsAuthModalOpen(true)}
+        currentTeacher={null}
+        onOpenAuth={() => {}}
         onOpenJsonManager={() => setIsJsonManagerOpen(true)}
         onOpenPdfManager={() => setIsPdfManagerOpen(true)}
         onOpenVideoManager={() => setIsVideoManagerOpen(true)}
@@ -270,8 +253,10 @@ export default function App() {
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           showOnlyCompleted={showOnlyCompleted}
-          onToggleShowOnlyCompleted={() => setShowOnlyCompleted(!showOnlyCompleted)}
-          isTeacherLoggedIn={Boolean(currentTeacher)}
+          onToggleShowOnlyCompleted={() =>
+            setShowOnlyCompleted(!showOnlyCompleted)
+          }
+          isTeacherLoggedIn={true}
           stepCounts={stepCounts}
           categoryCounts={categoryCounts}
         />
@@ -285,7 +270,7 @@ export default function App() {
                 activity={activity}
                 isCompleted={isActivityCompleted(activity.id)}
                 hasNote={hasActivityNote(activity.id)}
-                isTeacherLoggedIn={Boolean(currentTeacher)}
+                isTeacherLoggedIn={true}
                 onSelect={(act) => setSelectedActivity(act)}
                 onToggleComplete={(e, id) => {
                   e.stopPropagation();
@@ -322,11 +307,11 @@ export default function App() {
       <footer className="bg-white border-t border-slate-200/60 py-6 px-4 sm:px-6 text-xs text-slate-400 mt-12">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="font-semibold text-slate-700">
-            하하하 놀이 체육
+            하하하 체육놀이
           </div>
 
           <div className="text-[11px] text-slate-400 text-center sm:text-right">
-            유아교육기관 교사를 위한 놀이 체육 교육 자료실
+            유아교육기관 교사를 위한 체육놀이 교육 자료실
           </div>
         </div>
       </footer>
@@ -341,8 +326,8 @@ export default function App() {
           onToggleComplete={handleToggleComplete}
           noteText={teacherRecord.notes[selectedActivity.id] || ''}
           onSaveNote={handleSaveNote}
-          currentTeacher={currentTeacher}
-          onOpenAuth={() => setIsAuthModalOpen(true)}
+          currentTeacher={null}
+          onOpenAuth={() => {}}
           onOpenJsonManager={() => setIsJsonManagerOpen(true)}
           onOpenPdfManager={() => setIsPdfManagerOpen(true)}
           onOpenVideoManager={() => setIsVideoManagerOpen(true)}
@@ -352,17 +337,6 @@ export default function App() {
           hasNext={currentModalIndex < activities.length - 1}
         />
       )}
-
-      {/* 교사 로그인 모달 */}
-      <TeacherAuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        currentTeacher={currentTeacher}
-        onLogin={handleLogin}
-        onLogout={handleLogout}
-        completedCount={completedCount}
-        notesCount={notesCount}
-      />
 
       {/* 활동 데이터 관리 */}
       <JsonDataManagerModal
@@ -397,7 +371,6 @@ export default function App() {
           }
         }}
       />
-
     </div>
   );
 }
