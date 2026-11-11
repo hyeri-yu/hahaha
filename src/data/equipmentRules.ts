@@ -1,7 +1,7 @@
 import { ActivityItem, EquipmentCategory } from '../types';
 
 interface EquipmentMappingRule {
-  category: EquipmentCategory;
+  category: string;
   name: string;
   secondary?: string[];
   materials?: string[];
