@@ -226,7 +226,22 @@ export const storageService = {
     } catch (e) {
       console.error('Failed to load stored activities, falling back to initial data', e);
     }
-    return getAllInitialActivities();
+    // 사용자 지정 활동 데이터가 없어 기본 90개 활동을 사용하는 경우에도
+    // 관리자 영상 URL 오버라이드를 동일하게 적용합니다.
+    const defaultActivities = getAllInitialActivities();
+    const videoOverrides = this.getVideoOverrides();
+    return defaultActivities.map((activity) => {
+      const overriddenVideo = videoOverrides[activity.id];
+      const finalVideoUrl = overriddenVideo !== undefined
+        ? overriddenVideo
+        : (activity.videoUrl || null);
+      return {
+        ...activity,
+        videoUrl: finalVideoUrl,
+        qrCodeUrl: activity.qrCodeUrl || finalVideoUrl,
+        isVideoReady: Boolean(finalVideoUrl && finalVideoUrl.trim())
+      };
+    });
   },
 
   // 4. 원본 체육놀이 PDF 파일 IndexedDB 관리 (공통 단일 PDF 보관)
@@ -322,6 +337,7 @@ export const storageService = {
       localStorage.setItem(STORAGE_KEYS.VIDEO_OVERRIDES, JSON.stringify(overrides));
     } catch (e) {
       console.error('Failed to set video override', e);
+      throw e;
     }
   },
 
@@ -332,6 +348,7 @@ export const storageService = {
       localStorage.setItem(STORAGE_KEYS.VIDEO_OVERRIDES, JSON.stringify(updated));
     } catch (e) {
       console.error('Failed to set multiple video overrides', e);
+      throw e;
     }
   },
 
