@@ -289,14 +289,13 @@ export const storageService = {
 
             const pdfPage = Number(item.pdf_page) || defaultPdfPage;
 
+            // 대표 도구와 준비물은 최신 equipmentRules.ts를 기준으로 표시합니다.
+            // 기존 저장 데이터에 남아 있는 잘못된 도구명/준비물이 우선 적용되는 문제를 방지합니다.
             const rule = getEquipmentRule(id);
             const category: EquipmentCategory = rule.category;
-            const equipmentName = item.equipmentName || rule.name;
-            const secondaryEquipments = item.secondaryEquipments || rule.secondary;
-            const materials =
-              Array.isArray(item.materials) && item.materials.length > 0
-                ? item.materials
-                : rule.materials;
+            const equipmentName = rule.name;
+            const secondaryEquipments = rule.secondary;
+            const materials = rule.materials;
 
             const videoOverrides = this.getVideoOverrides();
             const overriddenVideo = videoOverrides[id];
