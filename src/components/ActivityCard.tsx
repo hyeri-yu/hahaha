@@ -37,10 +37,6 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
             {activity.step}단계 {String(activity.stepNumber).padStart(2, '0')}번
           </span>
 
-          <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
-              PDF {activity.pdf_page}쪽
-            </span>
             {/* 도구별 분류 파스텔 태그 */}
             <span
               className={`text-[11px] font-semibold px-2 py-0.5 rounded border ${equipStyle.badgeBg} ${equipStyle.badgeText} ${equipStyle.badgeBorder} inline-flex items-center gap-1`}
