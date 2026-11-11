@@ -248,7 +248,7 @@ const categoryCounts = useMemo(() => {
 
   <p className="text-[11px] sm:text-xs text-slate-400 leading-relaxed">
     자료 출처: 「다 함께 운동놀이」 원본 자료를 바탕으로
-    유아교육기관 교사들이 수업에 활용하기 쉽도록 구성한 교육 자료 사이트입니다.
+    수업에 활용하기 쉽도록 구성한 교육 자료 사이트입니다.
   </p>
 </div>
 
