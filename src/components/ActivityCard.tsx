@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { ActivityItem, EQUIPMENT_CONFIG } from '../types';
-import { Check, ChevronRight, FileText, Video } from 'lucide-react';
+import { Check, ChevronRight, FileText } from 'lucide-react';
 
 interface ActivityCardProps {
   activity: ActivityItem;
@@ -19,7 +20,8 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
   onSelect,
   onToggleComplete
 }) => {
-  const equipStyle = EQUIPMENT_CONFIG[activity.equipmentCategory] || EQUIPMENT_CONFIG.barebody;
+  const equipStyle =
+    EQUIPMENT_CONFIG[activity.equipmentCategory] || EQUIPMENT_CONFIG.barebody;
 
   return (
     <div
@@ -31,39 +33,36 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
       }`}
     >
       <div>
-        {/* Top: Number, PDF Page & Equipment Category Tag */}
+        {/* 활동 번호 및 도구 분류 */}
         <div className="flex items-center justify-between gap-2 mb-2.5">
           <span className="text-xs font-semibold text-[#0284C7] bg-[#E8F6FE] px-2 py-0.5 rounded">
             {activity.step}단계 {String(activity.stepNumber).padStart(2, '0')}번
           </span>
 
-            {/* 도구별 분류 파스텔 태그 */}
+          <span
+            className={`text-[11px] font-semibold px-2 py-0.5 rounded border ${equipStyle.badgeBg} ${equipStyle.badgeText} ${equipStyle.badgeBorder} inline-flex items-center gap-1`}
+            title={`대표 도구: ${activity.equipmentName || equipStyle.label}`}
+          >
             <span
-              className={`text-[11px] font-semibold px-2 py-0.5 rounded border ${equipStyle.badgeBg} ${equipStyle.badgeText} ${equipStyle.badgeBorder} inline-flex items-center gap-1`}
-              title={`대표 도구: ${activity.equipmentName || equipStyle.label}`}
-            >
-              <span
-                className="w-1.5 h-1.5 rounded-full shrink-0"
-                style={{ backgroundColor: equipStyle.dotColor }}
-              />
-              <span>{equipStyle.label}</span>
-            </span>
-          </div>
+              className="w-1.5 h-1.5 rounded-full shrink-0"
+              style={{ backgroundColor: equipStyle.dotColor }}
+            />
+            <span>{equipStyle.label}</span>
+          </span>
         </div>
 
-{/* Title: 본제목 + 부제목 */}
-<div className="mb-2 space-y-1">
-  <p className="text-xs text-slate-500 font-medium line-clamp-1">
-    {(activity as ActivityItem & { bodyActivityTitle?: string }).bodyActivityTitle || ''}
-  </p>
-  <h3 className="text-sm sm:text-base font-bold text-slate-900 group-hover:text-[#0284C7] transition-colors line-clamp-2">
-    {activity.title}
-  </h3>
-</div>
-    
+        {/* 활동 제목 */}
+        <div className="mb-2 space-y-1">
+          <p className="text-xs text-slate-500 font-medium line-clamp-1">
+            {(activity as ActivityItem & { bodyActivityTitle?: string }).bodyActivityTitle || ''}
+          </p>
+          <h3 className="text-sm sm:text-base font-bold text-slate-900 group-hover:text-[#0284C7] transition-colors line-clamp-2">
+            {activity.title}
+          </h3>
+        </div>
       </div>
 
-      {/* Bottom: Action & Teacher Status */}
+      {/* 자세히 보기 및 교사 기록 */}
       <div className="pt-3 border-t border-slate-100 flex items-center justify-between mt-2">
         <div className="flex items-center gap-2">
           <span className="text-xs font-medium text-slate-500 group-hover:text-[#0284C7] transition-colors inline-flex items-center gap-0.5">
