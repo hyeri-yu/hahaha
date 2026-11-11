@@ -1,6 +1,7 @@
 import { ActivityItem, TeacherRecord, TeacherUser, EquipmentCategory } from '../types';
 import { getAllInitialActivities } from '../data/defaultActivities';
 import { getEquipmentRule } from '../data/equipmentRules';
+import { VIDEO_URLS } from '../data/videoUrls';
 
 const STORAGE_KEYS = {
   CURRENT_TEACHER: 'hahaha_current_teacher_user',
@@ -187,7 +188,9 @@ export const storageService = {
             // 관리자 영상 URL 오버라이드 확인
             const videoOverrides = this.getVideoOverrides();
             const overriddenVideo = videoOverrides[id];
-            const finalVideoUrl = overriddenVideo !== undefined ? overriddenVideo : (item.videoUrl || null);
+            const finalVideoUrl = overriddenVideo !== undefined
+              ? overriddenVideo
+              : (VIDEO_URLS[id] || item.videoUrl || null);
             const isVideoReady = Boolean(finalVideoUrl && finalVideoUrl.trim());
 
             return {
@@ -234,7 +237,7 @@ export const storageService = {
       const overriddenVideo = videoOverrides[activity.id];
       const finalVideoUrl = overriddenVideo !== undefined
         ? overriddenVideo
-        : (activity.videoUrl || null);
+        : (VIDEO_URLS[activity.id] || activity.videoUrl || null);
       return {
         ...activity,
         videoUrl: finalVideoUrl,
