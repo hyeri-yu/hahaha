@@ -322,11 +322,11 @@ export default function App() {
       <footer className="bg-white border-t border-slate-200/60 py-6 px-4 sm:px-6 text-xs text-slate-400 mt-12">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="font-semibold text-slate-700">
-            하하하 체육놀이
+            하하하 놀이 체육
           </div>
 
           <div className="text-[11px] text-slate-400 text-center sm:text-right">
-            유아교육기관 교사를 위한 체육놀이 교육 자료실
+            유아교육기관 교사를 위한 놀이 체육 교육 자료실
           </div>
         </div>
       </footer>
