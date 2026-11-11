@@ -123,22 +123,39 @@ const getCategoryByActivityId = (
   return 'creative';
 };
 
+
 export const getEquipmentRule = (
   activityId: number
 ): EquipmentMappingRule & { category: EquipmentCategory } => {
+  const stepNumber = ((activityId - 1) % 30) + 1;
+
+  let category: EquipmentCategory;
+
+  if (stepNumber <= 5) {
+    category = 'ball';
+  } else if (stepNumber <= 10) {
+    category = 'hoop';
+  } else if (stepNumber <= 15) {
+    category = 'rope';
+  } else if (stepNumber <= 20) {
+    category = 'balanceBeam';
+  } else if (stepNumber <= 23) {
+    category = 'mat';
+  } else if (stepNumber <= 25) {
+    category = 'vaultingBox';
+  } else {
+    category = 'creative';
+  }
+
   const rule = ACTIVITY_EQUIPMENT_RULES[activityId];
 
-  if (!rule) {
-    return {
-      category: getCategoryByActivityId(activityId),
+  return {
+    ...(rule || {
       name: '창의적인 운동도구',
       secondary: [],
       materials: []
-    };
-  }
-
-  return {
-    ...rule,
-    category: getCategoryByActivityId(activityId)
+    }),
+    category
   };
 };
+
