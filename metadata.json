@@ -1,0 +1,6 @@
+{
+  "name": "하하하 체육놀이",
+  "description": "유아교육기관 교사들을 위한 무료 체육놀이 90가지 활동 모음. 1·2·3단계별 몸놀이와 도구놀이, 수업 목표와 발문, 교사 메모 기능을 제공합니다.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

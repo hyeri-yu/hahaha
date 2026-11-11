@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Noto Sans KR', sans-serif;
+    background-color: #FFFDF8;
+    color: #34495E;
+    letter-spacing: -0.015em;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: #1E293B;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Crisp and clean scrollbar */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom smooth scroll and subtle focus */
+html {
+  scroll-behavior: smooth;
+}
