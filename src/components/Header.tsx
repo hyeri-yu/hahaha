@@ -38,10 +38,10 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
             <div>
               <span className="text-base font-bold text-slate-900 tracking-tight group-hover:text-[#0284C7] transition-colors">
-                하하하 체육놀이
+                하하하 놀이 체육
               </span>
               <span className="text-[11px] text-slate-400 block font-normal leading-none mt-0.5">
-                유아 체육놀이 교육 자료실
+                유아 놀이 체육 교육 자료실
               </span>
             </div>
           </button>
@@ -79,7 +79,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={onOpenPdfManager}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
-            title="체육놀이 원본 PDF 자료 관리"
+            title="놀이 체육 원본 PDF 자료 관리"
           >
             <BookOpen className="w-3.5 h-3.5 text-[#0284C7]" />
             <span className="hidden sm:inline">PDF 원본</span>
