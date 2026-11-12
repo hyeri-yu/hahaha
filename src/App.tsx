@@ -230,7 +230,7 @@ export default function App() {
             <span className="text-[#F5A623]">나씩 </span>
             <span className="text-[#38A9E8]">하</span>
             <span className="text-[#65B88A]">는 </span>
-            <span className="text-[#38A9E8]">하하하</span>
+            <span className="text-[#38A9E8]">하하하 </span>
             <span className="text-[#A58AD4]">놀이 체육 </span>
           </h1>
 
